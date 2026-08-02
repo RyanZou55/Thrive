@@ -19,3 +19,7 @@ xcuserdata/
 
 # 私密文件（真机签名相关，不要提交）
 *.mobileprovision
+
+# 打包产物：每次 archive 都会重新生成，不进版本库
+AppStore/*.ipa
+*.xcarchive/

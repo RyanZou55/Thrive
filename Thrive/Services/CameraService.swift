@@ -1,4 +1,6 @@
-import AVFoundation
+// AVCaptureSession 等类型还没标 Sendable，但按苹果的用法约定，
+// 把会话操作丢到自己的串行队列上是安全的。@preconcurrency 用来消掉这类噪音警告。
+@preconcurrency import AVFoundation
 import Combine
 import OSLog
 import UIKit

@@ -82,11 +82,12 @@
 				};
 			};
 			buildConfigurationList = AA00000000000000000010 /* Build configuration list for PBXProject "Thrive" */;
-			developmentRegion = en;
+			developmentRegion = "zh-Hans";
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
+				"zh-Hans",
 			);
 			mainGroup = AA00000000000000000004;
 			minimizedProjectReferenceProxies = 1;
@@ -203,6 +204,7 @@
 				DEVELOPMENT_TEAM = 3Z47RGMC36;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSCameraUsageDescription = "拍摄植物生长照片时需要使用相机。";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "把生长照片保存到你的相册。";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "从相册选择植物照片。";
@@ -233,6 +235,7 @@
 				DEVELOPMENT_TEAM = 3Z47RGMC36;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSCameraUsageDescription = "拍摄植物生长照片时需要使用相机。";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "把生长照片保存到你的相册。";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "从相册选择植物照片。";

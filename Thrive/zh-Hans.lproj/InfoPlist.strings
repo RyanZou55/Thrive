@@ -1,0 +1,5 @@
+/* 声明 App 支持简体中文。
+   界面文案本身是硬编码中文，这个文件的作用是让系统把 Locale.current 解析成
+   zh-Hans —— 否则 Date.formatted() 会退回开发区域，在中文界面里显示成
+   "Aug 4, 2026" 这种英文日期。 */
+"CFBundleDisplayName" = "Thrive";

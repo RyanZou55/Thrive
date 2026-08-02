@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Thrive 不做任何追踪，也不把数据传出设备。
+	     照片、浇水记录、姿态数据全部只存在本机的 App Group 容器里。 -->
+	<key>NSPrivacyTracking</key>
+	<false/>
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array/>
+	<!-- 没有用到任何需要声明理由的 API（UserDefaults / 文件时间戳 /
+	     磁盘空间 / 系统启动时间 / 当前键盘），所以这里是空的。 -->
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array/>
+</dict>
+</plist>
