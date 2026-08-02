@@ -17,13 +17,13 @@
 
 ## 怎么装到自己 iPhone 上
 
-1. Xcode 菜单 → Settings → Accounts → `+` 登录你的 Apple ID（免费账号就够）。
-2. 左侧点蓝色的 `Thrive` 工程图标 → 选 TARGETS 里的 `Thrive` → `Signing & Capabilities` 标签页。
-3. `Team` 下拉里选你刚加的账号。Bundle Identifier 如果报「已被占用」，把 `com.ryanzou.thrive` 改成别的，比如 `com.你的名字.thrive`。
-4. 用数据线连上 iPhone，在设备选择器里选你的手机，按 `⌘R`。
-5. 手机上第一次会提示「不受信任的开发者」：设置 → 通用 → VPN与设备管理 → 信任你的账号。
+签名已经配好了（Team `3Z47RGMC36`），直接连上 iPhone、在设备选择器里选你的手机、按 `⌘R` 就行。
 
-> 免费账号签的 App 7 天后会过期，重新按一次 `⌘R` 就行。
+手机上第一次会提示「不受信任的开发者」：设置 → 通用 → VPN与设备管理 → 信任你的账号。
+
+> **如果真机编译报 "PLA Update available"**：去 [developer.apple.com/account](https://developer.apple.com/account) 登录，
+> 首页会弹出新版的 Program License Agreement，勾选同意即可。Apple 每次更新协议都会这样卡住签名，
+> 同意完回 Xcode 重新 `⌘R`。（模拟器不受影响，一直能跑。）
 
 ---
 
@@ -50,14 +50,12 @@ Thrive/
     └── Capture/CaptureView.swift 拍摄页（对齐三件套）
 ```
 
-## 两个已知的设计取舍
+## 两个设计取舍
 
-**1. App Group 目前是关着的。**
-文档要求数据放 App Group 共享容器（为将来的 Widget 预留），但 App Group 需要**付费开发者账号**才能签名，免费账号一打开就编译失败。
+**1. App Group 已启用，但代码保留了降级路径。**
+数据和照片都写进共享容器 `group.com.ryanzou.thrive`（见 `Thrive.entitlements`），v1.1 的桌面组件能直接读。
 
-所以 `AppContainer.swift` 做了自动降级：拿得到共享容器就用共享容器，拿不到就用 App 自己的目录。功能完全一样。
-
-将来你开通了付费账号，只需要在 Xcode 的 `Signing & Capabilities` 里加一个 App Groups capability、填 `group.com.ryanzou.thrive`，**代码一行都不用改** —— 下次启动会自动把已有数据搬进共享容器。
+`AppContainer.swift` 仍然保留了兜底逻辑：万一共享容器拿不到（换了签名配置、换了机器），会自动退回 App 自己的目录，不会崩也不会丢功能；等共享容器恢复可用，下次启动自动把数据搬回去。
 
 **2. 姿态对齐只看俯仰角和翻滚角，不看偏航角。**
 偏航（yaw）参考的是磁北，室内受金属和电器干扰会一直漂，拿它判断会误报。俯仰和翻滚参考的是重力，很稳。三个角度都照常存进数据库，将来做自动对齐时能用上。
