@@ -10,14 +10,22 @@ struct GrowthEntryDetailView: View {
     let plant: Plant
 
     @State private var isConfirmingDelete = false
+    @State private var viewedPhoto: ViewedPhoto?
+    @StateObject private var saver = PhotoSaver()
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    PhotoImageView(filename: entry.photoFilename, contentMode: .fit)
-                        .frame(maxWidth: .infinity)
-                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    // 点开进全屏，那里能双指缩放
+                    Button {
+                        viewedPhoto = ViewedPhoto(filename: entry.photoFilename)
+                    } label: {
+                        PhotoImageView(filename: entry.photoFilename, contentMode: .fit)
+                            .frame(maxWidth: .infinity)
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
 
                     if let note = entry.note, !note.isEmpty {
                         Text(note)
@@ -35,10 +43,25 @@ struct GrowthEntryDetailView: View {
                     Button("完成") { dismiss() }
                 }
                 ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        saver.save(filename: entry.photoFilename)
+                    } label: {
+                        Label("保存到相册", systemImage: "square.and.arrow.down")
+                    }
+                    .disabled(saver.isSaving)
+                }
+                ToolbarItem(placement: .primaryAction) {
                     Button("删除", systemImage: "trash", role: .destructive) {
                         isConfirmingDelete = true
                     }
                 }
+            }
+            .overlay(alignment: .bottom) {
+                PhotoSaveBadge(state: saver.state)
+                    .padding(.bottom, 40)
+            }
+            .fullScreenCover(item: $viewedPhoto) { photo in
+                PhotoViewerView(filename: photo.filename)
             }
             .confirmationDialog("删除这条记录？", isPresented: $isConfirmingDelete, titleVisibility: .visible) {
                 Button("删除", role: .destructive) { delete() }
