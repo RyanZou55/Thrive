@@ -35,6 +35,8 @@ final class CareRecord {
     var type: String = CareType.water.rawValue
     var amountMl: Double?
     var note: String?
+    /// 这次浇水随手拍的照片文件名。可选 —— 不拍照也能记一笔。
+    var photoFilename: String?
     var createdAt: Date = Date()
     var schemaVersion: Int = 1
 
@@ -44,13 +46,15 @@ final class CareRecord {
         performedAt: Date = Date(),
         type: CareType = .water,
         amountMl: Double? = nil,
-        note: String? = nil
+        note: String? = nil,
+        photoFilename: String? = nil
     ) {
         self.id = UUID()
         self.performedAt = performedAt
         self.type = type.rawValue
         self.amountMl = amountMl
         self.note = note
+        self.photoFilename = photoFilename
         self.createdAt = Date()
         self.schemaVersion = 1
     }

@@ -47,7 +47,7 @@ struct PlantGridView: View {
                     }
                     .buttonStyle(.plain)
                     .contextMenu {
-                        Button("已浇水", systemImage: "drop.fill") {
+                        Button("浇水", systemImage: "drop.fill") {
                             water(plant)
                         }
                         Button("删除", systemImage: "trash", role: .destructive) {
@@ -94,6 +94,9 @@ struct PlantGridView: View {
         PhotoStore.shared.delete(filename: plant.coverPhotoFilename)
         for entry in plant.growthEntries ?? [] {
             PhotoStore.shared.delete(filename: entry.photoFilename)
+        }
+        for record in plant.careRecords ?? [] {
+            PhotoStore.shared.delete(filename: record.photoFilename)
         }
 
         modelContext.delete(plant)
