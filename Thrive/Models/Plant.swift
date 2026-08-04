@@ -112,12 +112,31 @@ extension Plant {
         return calendar.dateComponents([.day], from: today, to: due).day
     }
 
-    /// 首页卡片上那行字。
+    /// 详情页顶部那行字。
     var wateringStatusText: String {
         guard let days = daysUntilWatering else { return "还没浇过水" }
         if days > 0 { return "还剩 \(days) 天浇水" }
         if days == 0 { return "今天该浇水" }
         return "逾期 \(-days) 天"
+    }
+
+    /// 距上次浇水过了几天。从没浇过返回 nil。
+    var daysSinceWatering: Int? {
+        guard let lastWateredAt else { return nil }
+        let calendar = Calendar.current
+        return calendar.dateComponents(
+            [.day],
+            from: calendar.startOfDay(for: lastWateredAt),
+            to: calendar.startOfDay(for: Date())
+        ).day
+    }
+
+    /// 首页卡片上那行字。
+    var lastWateredText: String {
+        guard let days = daysSinceWatering else { return "还没浇过水" }
+        if days <= 0 { return "今天浇过水" }
+        if days == 1 { return "昨天浇过水" }
+        return "\(days) 天前浇水"
     }
 
     var isWateringDue: Bool {

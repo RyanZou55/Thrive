@@ -18,7 +18,7 @@ struct PlantCardView: View {
                 HStack(spacing: 4) {
                     Image(systemName: plant.isWateringDue ? "drop.fill" : "drop")
                         .font(.caption)
-                    Text(plant.wateringStatusText)
+                    Text(plant.lastWateredText)
                         .font(.caption)
                         .lineLimit(1)
                 }
