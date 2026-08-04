@@ -16,13 +16,13 @@ struct PlantCardView: View {
                     .lineLimit(1)
 
                 HStack(spacing: 4) {
-                    Image(systemName: plant.isWateringDue ? "drop.fill" : "drop")
+                    Image(systemName: "drop")
                         .font(.caption)
                     Text(plant.lastWateredText)
                         .font(.caption)
                         .lineLimit(1)
                 }
-                .foregroundStyle(plant.isWateringDue ? Color.orange : Color.secondary)
+                .foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(10)

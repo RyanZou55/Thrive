@@ -10,7 +10,6 @@ struct AddPlantView: View {
     @State private var name = ""
     @State private var species = ""
     @State private var kind: PlantKind = .cactus
-    @State private var wateringIntervalDays = 7
     @State private var acquiredDate = Date()
     @State private var hasAcquiredDate = false
 
@@ -56,17 +55,6 @@ struct AddPlantView: View {
                     }
 
                     TextField("品种（可选）", text: $species)
-                }
-
-                Section("浇水") {
-                    Stepper(
-                        "每 \(wateringIntervalDays) 天浇一次",
-                        value: $wateringIntervalDays,
-                        in: 1...180
-                    )
-                    Text("到期当天早上 9 点提醒你。")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
                 }
 
                 Section("入手日期（可选）") {
@@ -117,7 +105,6 @@ struct AddPlantView: View {
             species: trimmedSpecies.isEmpty ? nil : trimmedSpecies,
             kind: kind,
             acquiredDate: hasAcquiredDate ? acquiredDate : nil,
-            wateringIntervalDays: wateringIntervalDays,
             sortOrder: nextSortOrder()
         )
 

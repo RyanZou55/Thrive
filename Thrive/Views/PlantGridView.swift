@@ -87,12 +87,9 @@ struct PlantGridView: View {
         plant.touch()
 
         try? modelContext.save()
-        Task { await WateringScheduler.shared.reschedule(for: plant) }
     }
 
     private func delete(_ plant: Plant) {
-        WateringScheduler.shared.cancel(for: plant.id)
-
         // 级联删除只管数据库记录，磁盘上的照片得自己清。
         PhotoStore.shared.delete(filename: plant.coverPhotoFilename)
         for entry in plant.growthEntries ?? [] {

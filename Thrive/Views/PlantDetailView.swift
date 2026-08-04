@@ -67,38 +67,23 @@ struct PlantDetailView: View {
     // MARK: - 浇水
 
     private var wateringCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(plant.wateringStatusText)
-                        .font(.headline)
-                        .foregroundStyle(plant.isWateringDue ? Color.orange : Color.primary)
-                    if let lastWateredAt = plant.lastWateredAt {
-                        Text("上次浇水 \(lastWateredAt.formatted(date: .abbreviated, time: .shortened))")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(plant.lastWateredText)
+                    .font(.headline)
+                if let lastWateredAt = plant.lastWateredAt {
+                    Text(lastWateredAt.formatted(date: .abbreviated, time: .shortened))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
-                Spacer()
-                Button {
-                    water()
-                } label: {
-                    Label("已浇水", systemImage: "drop.fill")
-                }
-                .buttonStyle(.borderedProminent)
             }
-
-            Stepper(
-                "间隔 \(plant.wateringIntervalDays) 天",
-                value: $plant.wateringIntervalDays,
-                in: 1...180
-            )
-            .font(.subheadline)
-            .onChange(of: plant.wateringIntervalDays) { _, _ in
-                plant.touch()
-                try? modelContext.save()
-                Task { await WateringScheduler.shared.reschedule(for: plant) }
+            Spacer()
+            Button {
+                water()
+            } label: {
+                Label("已浇水", systemImage: "drop.fill")
             }
+            .buttonStyle(.borderedProminent)
         }
         .padding(16)
         .background(.background.secondary)
@@ -151,7 +136,6 @@ struct PlantDetailView: View {
         plant.touch()
 
         try? modelContext.save()
-        Task { await WateringScheduler.shared.reschedule(for: plant) }
     }
 }
 

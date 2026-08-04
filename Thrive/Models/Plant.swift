@@ -31,7 +31,6 @@ final class Plant {
     /// 对应 PlantKind.rawValue，直接存字符串。
     var caudexType: String?
     var acquiredDate: Date?
-    var wateringIntervalDays: Int = 7
     var lastWateredAt: Date?
     var sortOrder: Int = 0
     var notes: String?
@@ -52,7 +51,6 @@ final class Plant {
         species: String? = nil,
         kind: PlantKind? = nil,
         acquiredDate: Date? = nil,
-        wateringIntervalDays: Int = 7,
         sortOrder: Int = 0,
         notes: String? = nil
     ) {
@@ -63,7 +61,6 @@ final class Plant {
         self.species = species
         self.caudexType = kind?.rawValue
         self.acquiredDate = acquiredDate
-        self.wateringIntervalDays = wateringIntervalDays
         self.sortOrder = sortOrder
         self.notes = notes
         self.createdAt = now
@@ -97,29 +94,6 @@ extension Plant {
         (careRecords ?? []).sorted { $0.performedAt > $1.performedAt }
     }
 
-    /// 下次浇水时间 = 上次浇水 + 间隔天数。文档要求实时算出，不入库。
-    var nextWateringDate: Date? {
-        guard let lastWateredAt else { return nil }
-        return Calendar.current.date(byAdding: .day, value: wateringIntervalDays, to: lastWateredAt)
-    }
-
-    /// 距下次浇水还剩几天。负数表示已经逾期。从未浇过水返回 nil。
-    var daysUntilWatering: Int? {
-        guard let nextWateringDate else { return nil }
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        let due = calendar.startOfDay(for: nextWateringDate)
-        return calendar.dateComponents([.day], from: today, to: due).day
-    }
-
-    /// 详情页顶部那行字。
-    var wateringStatusText: String {
-        guard let days = daysUntilWatering else { return "还没浇过水" }
-        if days > 0 { return "还剩 \(days) 天浇水" }
-        if days == 0 { return "今天该浇水" }
-        return "逾期 \(-days) 天"
-    }
-
     /// 距上次浇水过了几天。从没浇过返回 nil。
     var daysSinceWatering: Int? {
         guard let lastWateredAt else { return nil }
@@ -131,17 +105,12 @@ extension Plant {
         ).day
     }
 
-    /// 首页卡片上那行字。
+    /// 首页卡片和详情页顶部那行字。
     var lastWateredText: String {
         guard let days = daysSinceWatering else { return "还没浇过水" }
         if days <= 0 { return "今天浇过水" }
         if days == 1 { return "昨天浇过水" }
         return "\(days) 天前浇水"
-    }
-
-    var isWateringDue: Bool {
-        guard let days = daysUntilWatering else { return true }
-        return days <= 0
     }
 
     /// 任何修改后调用，维护 updatedAt。

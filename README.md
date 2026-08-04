@@ -31,7 +31,7 @@
 
 ```
 Thrive/
-├── ThriveApp.swift              App 入口，启动时重排所有浇水提醒
+├── ThriveApp.swift              App 入口
 ├── Models/                      三张核心表（对应文档 §4）
 │   ├── Plant.swift              植物
 │   ├── GrowthEntry.swift        生长记录（一张照片 + 姿态数据）
@@ -42,8 +42,7 @@ Thrive/
 │   └── ModelContainerFactory.swift
 ├── Services/
 │   ├── MotionService.swift      陀螺仪 → 姿态对齐判断
-│   ├── CameraService.swift      相机会话
-│   └── WateringScheduler.swift  本地通知
+│   └── CameraService.swift      相机会话
 └── Views/
     ├── PlantGridView.swift      首页
     ├── PlantDetailView.swift    植物详情 + 时间轴
@@ -64,6 +63,6 @@ Thrive/
 
 ## 路线图
 
-- **v1.0（当前）**：植物列表 · 生长时间轴 + 拍照对齐 · 浇水记录与提醒
+- **v1.0（当前）**：植物列表 · 生长时间轴 + 拍照对齐 · 浇水记录
 - **v1.1**：统计面板（Swift Charts）· 桌面组件（WidgetKit）← 这一步需要打开 App Group
 - **v1.2**：Live Activity · 拍后自动对齐（Vision 图像配准）+ 生长延时视频
