@@ -6,8 +6,20 @@ struct GrowthEntryDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
-    let entry: GrowthEntry
+    @Bindable var entry: GrowthEntry
     let plant: Plant
+
+    /// 备注是可选的，空串存回 nil，免得库里留一堆空字符串。
+    private var noteText: Binding<String> {
+        Binding(
+            get: { entry.note ?? "" },
+            set: { newValue in
+                let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                entry.note = trimmed.isEmpty ? nil : trimmed
+                entry.touch()
+            }
+        )
+    }
 
     @State private var isConfirmingDelete = false
     @State private var viewedPhoto: ViewedPhoto?
@@ -27,10 +39,7 @@ struct GrowthEntryDetailView: View {
                     }
                     .buttonStyle(.plain)
 
-                    if let note = entry.note, !note.isEmpty {
-                        Text(note)
-                            .font(.body)
-                    }
+                    NoteEditor(text: noteText, placeholder: "这次有什么变化？（可选）")
 
                     metadata
                 }
@@ -62,6 +71,10 @@ struct GrowthEntryDetailView: View {
             }
             .fullScreenCover(item: $viewedPhoto) { photo in
                 PhotoViewerView(filename: photo.filename)
+            }
+            .onDisappear {
+                // 备注是边打边写进模型的，关掉时落一次盘。
+                try? modelContext.save()
             }
             .confirmationDialog("删除这条记录？", isPresented: $isConfirmingDelete, titleVisibility: .visible) {
                 Button("删除", role: .destructive) { delete() }

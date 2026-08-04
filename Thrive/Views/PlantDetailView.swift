@@ -9,6 +9,7 @@ struct PlantDetailView: View {
 
     @State private var isCapturing = false
     @State private var selectedEntry: GrowthEntry?
+    @State private var selectedCareRecord: CareRecord?
     @State private var viewedPhoto: ViewedPhoto?
 
     // 浇水时可以顺手拍一张
@@ -42,6 +43,9 @@ struct PlantDetailView: View {
         }
         .sheet(item: $selectedEntry) { entry in
             GrowthEntryDetailView(entry: entry, plant: plant)
+        }
+        .sheet(item: $selectedCareRecord) { record in
+            CareRecordDetailView(record: record)
         }
         .fullScreenCover(item: $viewedPhoto) { photo in
             PhotoViewerView(filename: photo.filename)
@@ -153,7 +157,11 @@ struct PlantDetailView: View {
                             onOpenPhoto: { viewedPhoto = ViewedPhoto(filename: $0) }
                         )
                     case let .care(record):
-                        CareRecordRow(record: record) { viewedPhoto = ViewedPhoto(filename: $0) }
+                        CareRecordRow(
+                            record: record,
+                            onOpenDetail: { selectedCareRecord = record },
+                            onOpenPhoto: { viewedPhoto = ViewedPhoto(filename: $0) }
+                        )
                     }
                 }
             }
@@ -219,21 +227,38 @@ struct TimelineThumbnail: View {
 /// 时间轴上的一条养护记录。
 struct CareRecordRow: View {
     let record: CareRecord
+    var onOpenDetail: () -> Void
     var onOpenPhoto: (String) -> Void
 
     var body: some View {
         HStack(spacing: 12) {
             TimelineIcon(systemName: record.symbolName)
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text(record.displayName)
-                    .font(.subheadline.weight(.medium))
-                Text(record.performedAt.formatted(date: .abbreviated, time: .shortened))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
+            // 文字区点开详情，在那里补备注
+            Button(action: onOpenDetail) {
+                HStack(spacing: 6) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(record.displayName)
+                            .font(.subheadline.weight(.medium))
+                        Text(record.performedAt.formatted(date: .abbreviated, time: .shortened))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        if let note = record.note, !note.isEmpty {
+                            Text(note)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(2)
+                        }
+                    }
 
-            Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
 
             if let filename = record.photoFilename, !filename.isEmpty {
                 TimelineThumbnail(filename: filename) { onOpenPhoto(filename) }
