@@ -1,25 +1,6 @@
 import Foundation
 import SwiftData
 
-/// 植物类型。按文档要求，枚举一律以字符串存库，将来加新类型不会破坏旧数据。
-enum PlantKind: String, CaseIterable, Identifiable {
-    case cactus
-    case caudex
-    case succulent
-    case other
-
-    var id: String { rawValue }
-
-    var displayName: String {
-        switch self {
-        case .cactus: return String(localized: "仙人掌")
-        case .caudex: return String(localized: "块根")
-        case .succulent: return String(localized: "多肉")
-        case .other: return String(localized: "其他")
-        }
-    }
-}
-
 @Model
 final class Plant {
     /// 主键。永不复用、永不修改。
@@ -27,8 +8,9 @@ final class Plant {
     var name: String = ""
     /// 只存文件名，图片本体在共享容器的文件系统里。
     var coverPhotoFilename: String?
+    /// 品种和类型：v1.0 界面上没有入口，按文档「只做加法」的原则保留字段，
+    /// 将来想加分类不用改表。
     var species: String?
-    /// 对应 PlantKind.rawValue，直接存字符串。
     var caudexType: String?
     var acquiredDate: Date?
     var lastWateredAt: Date?
@@ -48,8 +30,6 @@ final class Plant {
     init(
         name: String,
         coverPhotoFilename: String? = nil,
-        species: String? = nil,
-        kind: PlantKind? = nil,
         acquiredDate: Date? = nil,
         sortOrder: Int = 0,
         notes: String? = nil
@@ -58,8 +38,6 @@ final class Plant {
         self.id = UUID()
         self.name = name
         self.coverPhotoFilename = coverPhotoFilename
-        self.species = species
-        self.caudexType = kind?.rawValue
         self.acquiredDate = acquiredDate
         self.sortOrder = sortOrder
         self.notes = notes
@@ -72,14 +50,6 @@ final class Plant {
 // MARK: - 计算属性（不入库）
 
 extension Plant {
-    var kind: PlantKind? {
-        get { caudexType.flatMap(PlantKind.init(rawValue:)) }
-        set {
-            caudexType = newValue?.rawValue
-            touch()
-        }
-    }
-
     /// 时间轴，按拍摄时间倒序（最新在前）。
     var sortedGrowthEntries: [GrowthEntry] {
         (growthEntries ?? []).sorted { $0.capturedAt > $1.capturedAt }

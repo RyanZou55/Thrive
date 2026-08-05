@@ -72,19 +72,17 @@ struct PlantDetailView: View {
                 .clipped()
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
 
-            HStack(spacing: 12) {
-                if let kind = plant.kind {
-                    Label(kind.displayName, systemImage: "leaf")
-                }
-                if let species = plant.species, !species.isEmpty {
-                    Text(species)
+            VStack(alignment: .leading, spacing: 6) {
+                if let about = plant.notes, !about.isEmpty {
+                    Text(about)
+                        .font(.subheadline)
                 }
                 if let acquiredDate = plant.acquiredDate {
                     Text("入手于 \(acquiredDate.formatted(date: .abbreviated, time: .omitted))")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
             }
-            .font(.caption)
-            .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
     }

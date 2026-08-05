@@ -8,8 +8,7 @@ struct AddPlantView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var name = ""
-    @State private var species = ""
-    @State private var kind: PlantKind = .cactus
+    @State private var about = ""
     @State private var acquiredDate = Date()
     @State private var hasAcquiredDate = false
 
@@ -47,14 +46,8 @@ struct AddPlantView: View {
 
                 Section("基本信息") {
                     TextField("名字", text: $name)
-
-                    Picker("类型", selection: $kind) {
-                        ForEach(PlantKind.allCases) { kind in
-                            Text(kind.displayName).tag(kind)
-                        }
-                    }
-
-                    TextField("品种（可选）", text: $species)
+                    TextField("简介（可选）", text: $about, axis: .vertical)
+                        .lineLimit(2...5)
                 }
 
                 Section("入手日期（可选）") {
@@ -98,14 +91,13 @@ struct AddPlantView: View {
             return
         }
 
-        let trimmedSpecies = species.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedAbout = about.trimmingCharacters(in: .whitespacesAndNewlines)
         let plant = Plant(
             name: name.trimmingCharacters(in: .whitespacesAndNewlines),
             coverPhotoFilename: filename,
-            species: trimmedSpecies.isEmpty ? nil : trimmedSpecies,
-            kind: kind,
             acquiredDate: hasAcquiredDate ? acquiredDate : nil,
-            sortOrder: nextSortOrder()
+            sortOrder: nextSortOrder(),
+            notes: trimmedAbout.isEmpty ? nil : trimmedAbout
         )
 
         modelContext.insert(plant)
