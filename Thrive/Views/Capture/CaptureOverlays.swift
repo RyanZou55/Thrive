@@ -68,7 +68,7 @@ struct PoseIndicatorBar: View {
                 Text(alignment.hint)
                     .font(.subheadline.weight(.medium))
                 if case let .off(pitchDelta, rollDelta) = alignment {
-                    Text(String(format: "俯仰 %+.1f° · 翻滚 %+.1f°", pitchDelta, rollDelta))
+                    Text(String(format: String(localized: "俯仰 %+.1f° · 翻滚 %+.1f°"), pitchDelta, rollDelta))
                         .font(.caption2.monospacedDigit())
                         .opacity(0.8)
                 }

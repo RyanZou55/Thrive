@@ -82,11 +82,11 @@ struct CaptureView: View {
                     .ignoresSafeArea()
             case .denied:
                 unavailableScreen(
-                    title: "没有相机权限",
-                    message: "去「设置 → Thrive → 相机」打开权限，或者直接从相册选一张。"
+                    title: String(localized: "没有相机权限"),
+                    message: String(localized: "去「设置 → Thrive → 相机」打开权限，或者直接从相册选一张。")
                 )
             case let .unavailable(reason):
-                unavailableScreen(title: "用不了相机", message: reason)
+                unavailableScreen(title: String(localized: "用不了相机"), message: reason)
             case .idle:
                 ProgressView().tint(.white)
             }
@@ -241,7 +241,7 @@ struct CaptureView: View {
 
                     if let poseAtCapture {
                         Label(
-                            String(format: "已记录角度：俯仰 %.1f° · 翻滚 %.1f°", poseAtCapture.pitch, poseAtCapture.roll),
+                            String(format: String(localized: "已记录角度：俯仰 %.1f° · 翻滚 %.1f°"), poseAtCapture.pitch, poseAtCapture.roll),
                             systemImage: "gyroscope"
                         )
                         .font(.caption)

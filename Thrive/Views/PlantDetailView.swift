@@ -290,7 +290,7 @@ struct GrowthEntryRow: View {
             from: Calendar.current.startOfDay(for: origin),
             to: Calendar.current.startOfDay(for: entry.capturedAt)
         ).day ?? 0
-        return days > 0 ? "第 \(days) 天" : nil
+        return days > 0 ? String(localized: "第 \(days) 天") : nil
     }
 
     var body: some View {

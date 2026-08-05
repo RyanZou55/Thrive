@@ -12,9 +12,9 @@ enum CareType: String, CaseIterable, Identifiable {
 
     var displayName: String {
         switch self {
-        case .water: return "浇水"
-        case .fertilize: return "施肥"
-        case .repot: return "换盆"
+        case .water: return String(localized: "浇水")
+        case .fertilize: return String(localized: "施肥")
+        case .repot: return String(localized: "换盆")
         }
     }
 
@@ -67,7 +67,7 @@ extension CareRecord {
     }
 
     var displayName: String {
-        careType?.displayName ?? "其他养护"
+        careType?.displayName ?? String(localized: "其他养护")
     }
 
     var symbolName: String {

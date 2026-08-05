@@ -54,16 +54,16 @@ enum PoseAlignment: Equatable {
     var hint: String {
         switch self {
         case .noReference:
-            return "第一张照片，随意构图 —— 之后都会以它为准"
+            return String(localized: "第一张照片，随意构图 —— 之后都会以它为准")
         case .aligned:
-            return "角度对上了，按快门"
+            return String(localized: "角度对上了，按快门")
         case let .off(pitchDelta, rollDelta):
             var parts: [String] = []
             if abs(pitchDelta) > PoseAlignment.tolerance {
-                parts.append(pitchDelta > 0 ? "手机前倾一点" : "手机后仰一点")
+                parts.append(pitchDelta > 0 ? String(localized: "手机前倾一点") : String(localized: "手机后仰一点"))
             }
             if abs(rollDelta) > PoseAlignment.tolerance {
-                parts.append(rollDelta > 0 ? "向左转正" : "向右转正")
+                parts.append(rollDelta > 0 ? String(localized: "向左转正") : String(localized: "向右转正"))
             }
             return parts.joined(separator: " · ")
         }

@@ -20,7 +20,7 @@ final class PhotoSaver: ObservableObject {
     func save(filename: String) {
         guard state != .saving else { return }
         guard let image = PhotoStore.shared.image(named: filename) else {
-            finish(with: .failed("找不到这张照片"))
+            finish(with: .failed(String(localized: "找不到这张照片")))
             return
         }
 
@@ -29,7 +29,7 @@ final class PhotoSaver: ObservableObject {
             // 只申请「添加」权限，不需要读用户整个相册。
             let status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
             guard status == .authorized || status == .limited else {
-                finish(with: .failed("没有相册写入权限"))
+                finish(with: .failed(String(localized: "没有相册写入权限")))
                 return
             }
 
@@ -39,7 +39,7 @@ final class PhotoSaver: ObservableObject {
                 }
                 finish(with: .saved)
             } catch {
-                finish(with: .failed("保存失败"))
+                finish(with: .failed(String(localized: "保存失败")))
             }
         }
     }
@@ -63,9 +63,9 @@ struct PhotoSaveBadge: View {
         case .idle:
             EmptyView()
         case .saving:
-            badge("正在保存…", symbol: "arrow.down.circle")
+            badge(String(localized: "正在保存…"), symbol: "arrow.down.circle")
         case .saved:
-            badge("已存进相册", symbol: "checkmark.circle.fill")
+            badge(String(localized: "已存进相册"), symbol: "checkmark.circle.fill")
         case let .failed(reason):
             badge(reason, symbol: "exclamationmark.triangle.fill")
         }

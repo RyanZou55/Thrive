@@ -12,10 +12,10 @@ enum PlantKind: String, CaseIterable, Identifiable {
 
     var displayName: String {
         switch self {
-        case .cactus: return "仙人掌"
-        case .caudex: return "块根"
-        case .succulent: return "多肉"
-        case .other: return "其他"
+        case .cactus: return String(localized: "仙人掌")
+        case .caudex: return String(localized: "块根")
+        case .succulent: return String(localized: "多肉")
+        case .other: return String(localized: "其他")
         }
     }
 }
@@ -107,10 +107,10 @@ extension Plant {
 
     /// 首页卡片和详情页顶部那行字。
     var lastWateredText: String {
-        guard let days = daysSinceWatering else { return "还没浇过水" }
-        if days <= 0 { return "今天浇过水" }
-        if days == 1 { return "昨天浇过水" }
-        return "\(days) 天前浇水"
+        guard let days = daysSinceWatering else { return String(localized: "还没浇过水") }
+        if days <= 0 { return String(localized: "今天浇过水") }
+        if days == 1 { return String(localized: "昨天浇过水") }
+        return String(localized: "\(days) 天前浇水")
     }
 
     /// 任何修改后调用，维护 updatedAt。

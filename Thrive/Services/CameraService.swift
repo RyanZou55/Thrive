@@ -76,7 +76,7 @@ final class CameraService: NSObject, ObservableObject {
             position: .back
         ) else {
             // 模拟器走这条路。UI 会退回「从相册选择」。
-            status = .unavailable("这台设备上没有可用的相机")
+            status = .unavailable(String(localized: "这台设备上没有可用的相机"))
             logger.info("找不到后置广角相机")
             return false
         }
@@ -88,7 +88,7 @@ final class CameraService: NSObject, ObservableObject {
             let input = try AVCaptureDeviceInput(device: device)
             guard session.canAddInput(input) else {
                 session.commitConfiguration()
-                status = .unavailable("无法接入相机输入")
+                status = .unavailable(String(localized: "无法接入相机输入"))
                 return false
             }
             session.addInput(input)
@@ -101,7 +101,7 @@ final class CameraService: NSObject, ObservableObject {
 
         guard session.canAddOutput(photoOutput) else {
             session.commitConfiguration()
-            status = .unavailable("无法接入照片输出")
+            status = .unavailable(String(localized: "无法接入照片输出"))
             return false
         }
         session.addOutput(photoOutput)

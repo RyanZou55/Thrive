@@ -90,7 +90,7 @@ struct GrowthEntryDetailView: View {
             if let pose = entry.pose {
                 Label("拍摄角度", systemImage: "gyroscope")
                     .font(.subheadline.weight(.medium))
-                Text(String(format: "俯仰 %.1f° · 翻滚 %.1f° · 偏航 %.1f°", pose.pitch, pose.roll, pose.yaw))
+                Text(String(format: String(localized: "俯仰 %.1f° · 翻滚 %.1f° · 偏航 %.1f°"), pose.pitch, pose.roll, pose.yaw))
                     .font(.caption.monospacedDigit())
                     .foregroundStyle(.secondary)
                 Text("这些数据会一直保留，将来做「自动对齐」时可以回溯使用。")
