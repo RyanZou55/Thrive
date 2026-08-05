@@ -1,22 +1,37 @@
-# App Store 上架资料（草稿）
+# App Store 上架资料
 
-照抄到 App Store Connect 即可。字数都已按苹果的上限核过，方括号里是上限。
+App Store Connect 里按语言分两份填。字数都按苹果的上限核过，方括号里是上限。
 
 ---
 
-## 基本信息
+## 通用设置（不分语言）
 
 | 字段 | 值 |
 |------|-----|
-| App 名称 [30] | `Thrive 植物生长记录` |
-| 副标题 [30] | `同一角度拍照，看见它长大` |
 | Bundle ID | `com.ryanzou.thrive` |
 | SKU | `thrive-ios-001` |
+| 主要语言 | 简体中文 |
+| 本地化 | 简体中文、英文（App 已做双语，跟随系统语言） |
 | 主要类别 | 生活 |
 | 次要类别 | 效率 |
 | 年龄分级 | 4+ |
 | 价格 | 免费 |
-| 主要语言 | 简体中文 |
+
+---
+
+# 简体中文
+
+## 名称 [30]
+
+```
+Thrive 植物生长记录
+```
+
+## 副标题 [30]
+
+```
+同一角度拍照，看见它长大
+```
 
 ## 关键词 [100 字符，逗号分隔不留空格]
 
@@ -50,13 +65,13 @@ Thrive 解决的就是这件事。
 · 构图网格
 九宫格加可选参考框，帮你把花盆每次落在同一个位置。
 
-【生长时间轴】
+【一条时间轴】
 
-每张照片配一句备注，按时间排成时间轴，并标出距入手第几天。翻下来就是一部生长记录。
+生长照和浇水记录按时间排在一起，每条都能配一句备注，并标出距入手第几天。照片点开可以双指放大细看，也能存回你自己的相册。备注写完之后还能改。
 
 【浇水记录】
 
-浇完点一下，卡片上就写着「3 天前浇水」。不设周期、不发提醒——仙人掌和块根什么时候该浇，看盆看天看植株，那是你的判断，不是闹钟的。
+浇完点一下，卡片上就写着「3 天前浇水」。顺手拍一张也行，不拍也行。不设周期、不发提醒——仙人掌和块根什么时候该浇，看盆看天看植株，那是你的判断，不是闹钟的。
 
 【关于隐私】
 
@@ -67,14 +82,13 @@ Thrive 没有账号，没有服务器，不收集任何数据。你的照片和�
 
 ```
 Thrive 的第一个版本。
-· 植物列表与浇水记录
-· 生长时间轴
 · 拍照对齐：幽灵叠影、姿态提示、构图网格
+· 生长照与浇水记录合成一条时间轴
+· 照片可放大查看、存回相册
+· 中英双语，跟随系统语言
 ```
 
 ## 网址
-
-先在 GitHub 仓库开启 Pages（见下方说明），这两个地址就能用：
 
 | 字段 | 值 |
 |------|-----|
@@ -82,8 +96,92 @@ Thrive 的第一个版本。
 | 隐私政策网址（必填） | `https://ryanzou55.github.io/Thrive/privacy-policy` |
 | 营销网址（选填） | 留空 |
 
-**开启 GitHub Pages：** 仓库页面 → Settings → Pages → Source 选 `Deploy from a branch` →
-分支选 `main`、目录选 `/docs` → Save。等一两分钟，上面两个地址就能打开了。
+---
+
+# English
+
+## Name [30]
+
+```
+Thrive: Plant Growth Log
+```
+
+## Subtitle [30]
+
+```
+Same angle, every single time
+```
+
+## Keywords [100 chars, comma separated, no spaces]
+
+```
+succulent,cactus,caudex,plant,growth,tracker,journal,watering,log,garden,timelapse,houseplant
+```
+
+## Promotional Text [170]
+
+```
+Shoot from the same angle every time. Months later, scroll the timeline and you'll actually see how much it grew.
+```
+
+## Description [4000]
+
+```
+Thrive tracks how your plants grow — especially cacti and caudex plants, the ones that change so slowly you can't tell by looking.
+
+The problem isn't that people don't photograph their plants. It's that every shot is from a different angle. Six months later your camera roll is a pile of photos you can't compare.
+
+That's what Thrive fixes.
+
+THREE WAYS TO LINE UP THE SHOT
+
+· Ghost overlay
+Your last photo sits semi-transparent over the live viewfinder. Move the phone until the plant lines up with the ghost, then shoot — the two frames match.
+
+· Angle guide
+Thrive reads your phone's pitch and roll and compares them to the angle saved with your last photo. It tells you which way to tilt, and gives a light haptic tap when you're lined up, so your eyes never leave the viewfinder.
+
+· Composition grid
+A rule-of-thirds grid plus an optional reference box, so the pot lands in the same spot every time.
+
+ONE TIMELINE
+
+Growth photos and waterings sit together in one chronological list. Every entry can carry a note, and each one is tagged with how many days it's been since you got the plant. Tap any photo to pinch-zoom into the detail, or save it back to your own photo library. Notes stay editable afterwards.
+
+WATERING, LOGGED SIMPLY
+
+Tap once when you water. The card then reads "3 days ago." Snap a photo while you're at it, or don't. No schedules, no reminders — when a cactus needs water depends on the pot, the weather and the plant. That's your call, not an alarm's.
+
+PRIVACY
+
+No account, no server, no analytics. Your photos and records never leave your phone.
+```
+
+## What's New (1.0)
+
+```
+The first release of Thrive.
+· Shot alignment: ghost overlay, angle guide, composition grid
+· Growth photos and waterings in one timeline
+· Pinch-zoom any photo, save it back to your library
+· English and Simplified Chinese, following your system language
+```
+
+## URLs
+
+| Field | Value |
+|-------|-------|
+| Support URL (required) | `https://ryanzou55.github.io/Thrive/en` |
+| Privacy Policy URL (required) | `https://ryanzou55.github.io/Thrive/privacy-policy-en` |
+| Marketing URL (optional) | leave blank |
+
+---
+
+## 开启 GitHub Pages
+
+上面四个网址都靠它托管。仓库页面 → Settings → Pages → Source 选
+`Deploy from a branch` → 分支选 `main`、目录选 `/docs` → Save。
+等一两分钟，四个地址就能打开了。
 
 ## App 隐私问卷
 
@@ -94,16 +192,19 @@ Thrive 确实不收集任何数据：没有网络请求，没有第三方 SDK，
 ## 出口合规
 
 Info.plist 里已经写好 `ITSAppUsesNonExemptEncryption = false`，
-提交时不会再问你加密相关的问题。
+提交时不会再问加密相关的问题。
 
 ## 截图
 
-`AppStore/screenshots/` 下有三张 1320×2868（6.9 英寸），可以直接上传：
+`AppStore/screenshots/` 下按语言分了两套，都是 1320×2868（6.9 英寸），可以直接上传：
 
-1. `01_首页-植物网格.png` — 植物网格与浇水状态
-2. `02_详情-生长时间轴.png` — 生长时间轴，带「第 N 天」
-3. `03_生长记录-拍摄角度.png` — 单张记录与保存下来的拍摄角度
+**zh-Hans/**
+1. `01_首页-植物网格.png` — 植物网格与「几天前浇水」
+2. `02_详情-时间轴.png` — 生长照与浇水混排的时间轴
+3. `03_生长记录-拍摄角度.png` — 单条记录、可编辑备注、保存下来的拍摄角度
 
-**还缺最关键的一张：拍摄页的幽灵叠影。** 模拟器没有相机，这张必须用真机拍。
-做法：把 App 装到 iPhone，给同一株植物拍第二张时截屏（电源键+音量上键），
-然后把截图从手机传到电脑，放进这个目录一起上传。
+**en/** — 同样三张，界面和演示数据都是英文。
+
+**还缺最关键的一张：拍摄页的幽灵叠影。** 模拟器没有可用的 AVCapture 相机，
+这张必须用真机拍。做法：把 App 装到 iPhone，给同一株植物拍第二张时截屏
+（电源键+音量上键），中英文各截一张，放进对应目录一起上传。

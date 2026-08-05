@@ -32,10 +32,13 @@
 ```
 Thrive/
 ├── ThriveApp.swift              App 入口
+├── Localizable.xcstrings        界面文案（中英）
+├── InfoPlist.xcstrings          权限说明（中英）
 ├── Models/                      三张核心表（对应文档 §4）
 │   ├── Plant.swift              植物
 │   ├── GrowthEntry.swift        生长记录（一张照片 + 姿态数据）
-│   └── CareRecord.swift         养护记录（浇水/施肥/换盆共用一张表）
+│   ├── CareRecord.swift         养护记录（浇水/施肥/换盆共用一张表）
+│   └── TimelineItem.swift       把两类记录合成一条时间轴
 ├── Storage/
 │   ├── AppContainer.swift       数据落盘位置 + App Group 兜底逻辑
 │   ├── PhotoStore.swift         照片读写（数据库只存文件名）
@@ -46,23 +49,31 @@ Thrive/
 └── Views/
     ├── PlantGridView.swift      首页
     ├── PlantDetailView.swift    植物详情 + 时间轴
-    └── Capture/CaptureView.swift 拍摄页（对齐三件套）
+    ├── GrowthEntryDetailView.swift
+    ├── CareRecordDetailView.swift
+    ├── Capture/CaptureView.swift 拍摄页（对齐三件套）
+    └── Components/              看图缩放、存相册、备注框等
 ```
 
-## 两个设计取舍
+## 三个设计取舍
 
 **1. App Group 已启用，但代码保留了降级路径。**
 数据和照片都写进共享容器 `group.com.ryanzou.thrive`（见 `Thrive.entitlements`），v1.1 的桌面组件能直接读。
 
 `AppContainer.swift` 仍然保留了兜底逻辑：万一共享容器拿不到（换了签名配置、换了机器），会自动退回 App 自己的目录，不会崩也不会丢功能；等共享容器恢复可用，下次启动自动把数据搬回去。
 
-**2. 姿态对齐只看俯仰角和翻滚角，不看偏航角。**
+**2. 界面文案走 String Catalog，跟随系统语言。**
+`Localizable.xcstrings` 是简体中文为源语言、英文为译文。注意模型层和服务层返回的
+普通 String（植物状态、姿态提示等）不在 SwiftUI 的 `Text` 字面量里，不会被自动
+本地化，必须手动包 `String(localized:)`，否则英文环境下会漏出中文。
+
+**3. 姿态对齐只看俯仰角和翻滚角，不看偏航角。**
 偏航（yaw）参考的是磁北，室内受金属和电器干扰会一直漂，拿它判断会误报。俯仰和翻滚参考的是重力，很稳。三个角度都照常存进数据库，将来做自动对齐时能用上。
 
 ---
 
 ## 路线图
 
-- **v1.0（当前）**：植物列表 · 生长时间轴 + 拍照对齐 · 浇水记录
+- **v1.0（当前）**：植物列表 · 时间轴（生长照 + 浇水）· 拍照对齐 · 看图与存图 · 中英双语
 - **v1.1**：统计面板（Swift Charts）· 桌面组件（WidgetKit）← 这一步需要打开 App Group
 - **v1.2**：Live Activity · 拍后自动对齐（Vision 图像配准）+ 生长延时视频
