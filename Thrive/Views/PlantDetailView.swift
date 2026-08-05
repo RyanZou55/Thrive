@@ -22,22 +22,13 @@ struct PlantDetailView: View {
         ScrollView {
             VStack(spacing: 20) {
                 header
-                wateringCard
+                actionCard
                 timeline
             }
             .padding(16)
         }
         .navigationTitle(plant.name)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button {
-                    isCapturing = true
-                } label: {
-                    Label("拍生长照", systemImage: "camera")
-                }
-            }
-        }
         .fullScreenCover(isPresented: $isCapturing) {
             CaptureView(plant: plant)
         }
@@ -98,10 +89,11 @@ struct PlantDetailView: View {
         }
     }
 
-    // MARK: - 浇水
+    // MARK: - 两个写入口
 
-    private var wateringCard: some View {
-        HStack {
+    /// 拍生长照和浇水是这个 App 仅有的两种记录，做成并排等宽的两个按钮。
+    private var actionCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(plant.lastWateredText)
                     .font(.headline)
@@ -111,13 +103,24 @@ struct PlantDetailView: View {
                         .foregroundStyle(.secondary)
                 }
             }
-            Spacer()
-            Button {
-                isChoosingWaterPhoto = true
-            } label: {
-                Label("浇水", systemImage: "drop.fill")
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            HStack(spacing: 10) {
+                Button {
+                    isCapturing = true
+                } label: {
+                    Label("拍生长照", systemImage: "camera.fill")
+                        .frame(maxWidth: .infinity)
+                }
+                Button {
+                    isChoosingWaterPhoto = true
+                } label: {
+                    Label("浇水", systemImage: "drop.fill")
+                        .frame(maxWidth: .infinity)
+                }
             }
             .buttonStyle(.borderedProminent)
+            .controlSize(.large)
         }
         .padding(16)
         .background(.background.secondary)
