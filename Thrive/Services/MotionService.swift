@@ -84,10 +84,16 @@ final class MotionService: ObservableObject {
     }
 
     func start() {
+        #if targetEnvironment(simulator)
+        // 模拟器没有陀螺仪，姿态条永远不会出现，也就无从验证。
+        // 这里造一个来回摆动的假姿态，让它扫过「偏了 → 对齐 → 偏了」，
+        // 好把姿态条的渲染和状态切换验证掉。只在模拟器编译，真机没有这段。
+        startSimulatedMotion()
+        return
+        #else
         guard manager.isDeviceMotionAvailable else {
-            // 模拟器没有陀螺仪，这里会走到。相机页面会隐藏姿态条。
             isAvailable = false
-            logger.info("设备不支持 DeviceMotion（模拟器通常如此）")
+            logger.info("设备不支持 DeviceMotion")
             return
         }
         guard !manager.isDeviceMotionActive else { return }
@@ -103,7 +109,26 @@ final class MotionService: ObservableObject {
                 yaw: attitude.yaw * 180 / .pi
             )
         }
+        #endif
     }
+
+    #if targetEnvironment(simulator)
+    private var simulatedTimer: Timer?
+
+    /// 两个轴同相摆动，振幅比容差大，所以会周期性地穿过基准角度 ——
+    /// 能扫出「偏了 → 对齐 → 偏了」的完整来回。
+    private func startSimulatedMotion() {
+        isAvailable = true
+        let start = Date()
+        simulatedTimer?.invalidate()
+        simulatedTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 30, repeats: true) { [weak self] _ in
+            let swing = 6 * sin(Date().timeIntervalSince(start) * 0.8)
+            Task { @MainActor in
+                self?.currentPose = DevicePose(pitch: -2.4 + swing, roll: 1.6 + swing, yaw: 133.3)
+            }
+        }
+    }
+    #endif
 
     func stop() {
         guard manager.isDeviceMotionActive else { return }

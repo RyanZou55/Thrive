@@ -41,7 +41,18 @@ struct GhostOverlay: View {
     var opacity: Double
 
     var body: some View {
-        PhotoImageView(filename: filename)
+        // 尺寸由 Color.clear 定，图片只作为 overlay 叠上去 —— overlay 再大也不会
+        // 反过来撑大宿主。
+        //
+        // 不这么做的话：PhotoImageView 是 aspectRatio(.fill)，竖图填满全屏后上报的
+        // 宽度能到屏宽的 1.6 倍，把外层 ZStack 一起撑大，取景页的按钮就被挤出屏幕。
+        // 注意 .frame(maxWidth: .infinity) 治不了这个 —— 子视图比提议尺寸大时，
+        // frame 上报的是子视图的尺寸，不会把它夹小。
+        Color.clear
+            .overlay {
+                PhotoImageView(filename: filename)
+            }
+            .clipped()
             .opacity(opacity)
             .allowsHitTesting(false)
     }

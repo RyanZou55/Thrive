@@ -27,6 +27,10 @@ struct CaptureView: View {
     @State private var pickerItem: PhotosPickerItem?
     @State private var wasAligned = false
 
+    /// 复用同一个发生器并提前 prepare：Taptic Engine 冷的时候，
+    /// 现场 new 一个再 impact，第一次往往会被延迟或直接丢掉。
+    private let alignmentHaptics = UIImpactFeedbackGenerator(style: .medium)
+
     /// 用来做叠影和角度对比的那张 —— 就是最近一张生长记录。
     private var referenceEntry: GrowthEntry? {
         plant.latestGrowthEntry
@@ -34,6 +38,22 @@ struct CaptureView: View {
 
     private var alignment: PoseAlignment {
         PoseAlignment.evaluate(current: motion.currentPose, reference: referenceEntry?.pose)
+    }
+
+    /// 模拟器上 AVCapture 找不到相机，取景框出不来，叠影 / 网格 / 姿态条也就一次都渲染不到。
+    /// 这个开关让模拟器拿一张静态图冒充取景画面，好把这些叠加层验证掉。
+    /// 只在模拟器编译，真机构建里恒为 false。
+    private var isUsingSimulatorStandIn: Bool {
+        #if targetEnvironment(simulator)
+        if case .unavailable = camera.status { return true }
+        #endif
+        return false
+    }
+
+    /// 叠影、网格、姿态条什么时候该出现。
+    private var showsAlignmentAids: Bool {
+        if case .ready = camera.status { return true }
+        return isUsingSimulatorStandIn
     }
 
     var body: some View {
@@ -47,6 +67,7 @@ struct CaptureView: View {
             }
         }
         .task {
+            alignmentHaptics.prepare()
             await camera.start()
             motion.start()
         }
@@ -63,7 +84,8 @@ struct CaptureView: View {
         .onChange(of: alignment.isAligned) { _, isAligned in
             // 刚好对上时轻震一下，眼睛可以一直盯着取景框。
             if isAligned && !wasAligned {
-                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                alignmentHaptics.impactOccurred()
+                alignmentHaptics.prepare()   // 为下一次对齐再热一次
             }
             wasAligned = isAligned
         }
@@ -91,7 +113,20 @@ struct CaptureView: View {
                 ProgressView().tint(.white)
             }
 
-            if case .ready = camera.status {
+            #if targetEnvironment(simulator)
+            if isUsingSimulatorStandIn {
+                // 盖住那句「用不了相机」，模仿 AVCaptureVideoPreviewLayer 的
+                // resizeAspectFill：同样是 4:3 的源，同样填满裁切，几何关系和真机一致。
+                Color.clear
+                    .overlay {
+                        PhotoImageView(filename: plant.sortedGrowthEntries.last?.photoFilename)
+                    }
+                    .clipped()
+                    .ignoresSafeArea()
+            }
+            #endif
+
+            if showsAlignmentAids {
                 GhostOverlay(filename: referenceEntry?.photoFilename, opacity: ghostOpacity)
                     .ignoresSafeArea()
 
