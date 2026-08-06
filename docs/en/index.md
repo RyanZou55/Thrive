@@ -8,7 +8,7 @@ An iOS app for tracking how your plants grow and when you watered them — built
 
 **The point: it helps you shoot from the same angle every time.** Stretch that across months and the change becomes obvious, instead of leaving you with a pile of photos taken from everywhere.
 
-*[简体中文](./)*
+*[简体中文](../)*
 
 ## How
 
@@ -31,4 +31,4 @@ Questions or feature requests: [GitHub Issues](https://github.com/RyanZou55/Thri
 
 ## Privacy
 
-Thrive collects nothing; everything stays on your phone. See the [privacy policy](privacy-policy-en).
+Thrive collects nothing; everything stays on your phone. See the [privacy policy](../privacy-policy-en/).

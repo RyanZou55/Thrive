@@ -1,0 +1,5 @@
+# GitHub Pages 用它来渲染 docs/ 下的页面。
+# 不设主题的话输出是没有样式的裸 HTML，审核员点开隐私政策会看到很难看的一页。
+title: Thrive
+description: 记录植物生长与浇水的 iOS App
+theme: jekyll-theme-minimal

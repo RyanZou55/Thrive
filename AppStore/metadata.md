@@ -93,7 +93,7 @@ Thrive 的第一个版本。
 | 字段 | 值 |
 |------|-----|
 | 支持网址（必填） | `https://ryanzou55.github.io/Thrive/` |
-| 隐私政策网址（必填） | `https://ryanzou55.github.io/Thrive/privacy-policy` |
+| 隐私政策网址（必填） | `https://ryanzou55.github.io/Thrive/privacy-policy/` |
 | 营销网址（选填） | 留空 |
 
 ---
@@ -171,8 +171,8 @@ The first release of Thrive.
 
 | Field | Value |
 |-------|-------|
-| Support URL (required) | `https://ryanzou55.github.io/Thrive/en` |
-| Privacy Policy URL (required) | `https://ryanzou55.github.io/Thrive/privacy-policy-en` |
+| Support URL (required) | `https://ryanzou55.github.io/Thrive/en/` |
+| Privacy Policy URL (required) | `https://ryanzou55.github.io/Thrive/privacy-policy-en/` |
 | Marketing URL (optional) | leave blank |
 
 ---

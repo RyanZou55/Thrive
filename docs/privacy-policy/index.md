@@ -4,7 +4,7 @@ title: Thrive 隐私政策
 
 # Thrive 隐私政策
 
-最后更新：2026 年 8 月 5 日 · *[English](privacy-policy-en)*
+最后更新：2026 年 8 月 5 日 · *[English](../privacy-policy-en/)*
 
 ## 简单说
 

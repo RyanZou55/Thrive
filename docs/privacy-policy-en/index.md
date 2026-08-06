@@ -4,7 +4,7 @@ title: Thrive Privacy Policy
 
 # Thrive Privacy Policy
 
-Last updated: August 5, 2026 · *[简体中文](privacy-policy)*
+Last updated: August 5, 2026 · *[简体中文](../privacy-policy/)*
 
 ## Short version
 
