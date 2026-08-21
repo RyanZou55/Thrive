@@ -194,6 +194,31 @@ Thrive 确实不收集任何数据：没有网络请求，没有第三方 SDK，
 Info.plist 里已经写好 `ITSAppUsesNonExemptEncryption = false`，
 提交时不会再问加密相关的问题。
 
+## 版本更新说明（此版本的新功能）
+
+发更新时 ASC 会要求填「此版本的新功能 / What's New in This Version」，中英各一份。
+每发一版在这里往上叠一段，最新的放最前面。
+
+### 1.1
+
+简体中文：
+
+```
+封面照片现在可以点开全屏看，也能选择填满裁剪或完整显示。
+浇水拍照改用和拍生长照相同的取景界面，同样有幽灵叠影，能对着上一张把植株摆回原位。
+添加植物时封面可以直接拍照，入手日期的选择也更直接了。
+```
+
+English：
+
+```
+Cover photos now open full screen, and you can choose between fill and fit.
+Watering photos use the same viewfinder as growth photos, ghost overlay included, so you can line the plant up against the previous shot.
+You can now shoot a cover photo straight from the camera when adding a plant, and picking a date acquired takes one tap less.
+```
+
+---
+
 ## 截图
 
 `AppStore/screenshots/` 下按**尺寸**再按语言分好了，目录名就是 ASC 里对应的槽位：
