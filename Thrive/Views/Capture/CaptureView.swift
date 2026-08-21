@@ -2,6 +2,15 @@ import PhotosUI
 import SwiftData
 import SwiftUI
 
+/// 这次拍照最后要存成哪种记录。两种都走同一套取景界面 ——
+/// 浇水时同样想看着上一张照片把植株摆回原位。
+enum CapturePurpose: String, Identifiable {
+    case growth
+    case watering
+
+    var id: String { rawValue }
+}
+
 /// 拍摄页 —— App 的核心亮点。
 ///
 /// 对齐三件套同时工作：
@@ -13,6 +22,7 @@ struct CaptureView: View {
     @Environment(\.dismiss) private var dismiss
 
     let plant: Plant
+    var purpose: CapturePurpose = .growth
 
     @StateObject private var camera = CameraService()
     @StateObject private var motion = MotionService()
@@ -253,6 +263,20 @@ struct CaptureView: View {
 
     // MARK: - 确认页
 
+    private var reviewTitle: String {
+        switch purpose {
+        case .growth: String(localized: "这张留下吗？")
+        case .watering: String(localized: "记下这次浇水？")
+        }
+    }
+
+    private var notePlaceholder: String {
+        switch purpose {
+        case .growth: String(localized: "这次有什么变化？（可选）")
+        case .watering: String(localized: "备注（可选）")
+        }
+    }
+
     private func reviewScreen(image: UIImage) -> some View {
         NavigationStack {
             ScrollView {
@@ -270,11 +294,12 @@ struct CaptureView: View {
                     }
                     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
 
-                    TextField("这次有什么变化？（可选）", text: $note, axis: .vertical)
+                    TextField(notePlaceholder, text: $note, axis: .vertical)
                         .lineLimit(2...5)
                         .textFieldStyle(.roundedBorder)
 
-                    if let poseAtCapture {
+                    // 浇水记录不存姿态，就别提它。
+                    if purpose == .growth, let poseAtCapture {
                         Label(
                             String(format: String(localized: "已记录角度：俯仰 %.1f° · 翻滚 %.1f°"), poseAtCapture.pitch, poseAtCapture.roll),
                             systemImage: "gyroscope"
@@ -286,7 +311,7 @@ struct CaptureView: View {
                 }
                 .padding(16)
             }
-            .navigationTitle("这张留下吗？")
+            .navigationTitle(reviewTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -323,21 +348,32 @@ struct CaptureView: View {
         guard let filename = PhotoStore.shared.save(image) else { return }
 
         let trimmedNote = note.trimmingCharacters(in: .whitespacesAndNewlines)
-        let entry = GrowthEntry(
-            photoFilename: filename,
-            note: trimmedNote.isEmpty ? nil : trimmedNote,
-            refEntryID: referenceEntry?.id,
-            pose: poseAtCapture
-        )
-        entry.plant = plant
-        modelContext.insert(entry)
+        let savedNote = trimmedNote.isEmpty ? nil : trimmedNote
 
-        // 第一张生长照顺手当封面。
-        if plant.coverPhotoFilename == nil {
-            plant.coverPhotoFilename = filename
+        switch purpose {
+        case .growth:
+            let entry = GrowthEntry(
+                photoFilename: filename,
+                note: savedNote,
+                refEntryID: referenceEntry?.id,
+                pose: poseAtCapture
+            )
+            entry.plant = plant
+            modelContext.insert(entry)
+
+            // 第一张生长照顺手当封面。
+            if plant.coverPhotoFilename == nil {
+                plant.coverPhotoFilename = filename
+            }
+
+        case .watering:
+            let record = CareRecord(type: .water, note: savedNote, photoFilename: filename)
+            record.plant = plant
+            modelContext.insert(record)
+            plant.lastWateredAt = record.performedAt
         }
-        plant.touch()
 
+        plant.touch()
         try? modelContext.save()
         dismiss()
     }

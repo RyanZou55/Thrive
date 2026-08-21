@@ -34,6 +34,17 @@
         }
       }
     },
+    "不记录入手日期": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Don't record a date"
+          }
+        }
+      }
+    },
     "今天浇过水": {
       "extractionState": "manual",
       "localizations": {
@@ -288,6 +299,17 @@
         }
       }
     },
+    "填满裁剪": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fill"
+          }
+        }
+      }
+    },
     "备注": {
       "extractionState": "manual",
       "localizations": {
@@ -299,6 +321,17 @@
         }
       }
     },
+    "备注（可选）": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Note (optional)"
+          }
+        }
+      }
+    },
     "完成": {
       "extractionState": "manual",
       "localizations": {
@@ -306,6 +339,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Done"
+          }
+        }
+      }
+    },
+    "完整显示": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fit"
           }
         }
       }
@@ -503,6 +547,17 @@
         }
       }
     },
+    "显示方式": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Display"
+          }
+        }
+      }
+    },
     "正在保存…": {
       "extractionState": "manual",
       "localizations": {
@@ -635,13 +690,13 @@
         }
       }
     },
-    "记录入手日期": {
+    "记下这次浇水？": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Record date acquired"
+            "value": "Log this watering?"
           }
         }
       }
@@ -686,6 +741,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Never watered"
+          }
+        }
+      }
+    },
+    "还没记。选一个日期就记下来。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not recorded. Pick a date to record it."
           }
         }
       }

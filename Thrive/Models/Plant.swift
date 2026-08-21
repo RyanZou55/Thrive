@@ -1,6 +1,16 @@
 import Foundation
 import SwiftData
 
+/// 封面照片在详情页那块区域里怎么显示。展示相关的几个属性在 PlantDetailView 里。
+enum CoverDisplayMode: String, Codable, CaseIterable, Identifiable {
+    /// 裁掉多余部分，铺满整块区域。
+    case fill
+    /// 完整显示整张照片，居中，两边留白。
+    case fit
+
+    var id: String { rawValue }
+}
+
 @Model
 final class Plant {
     /// 主键。永不复用、永不修改。
@@ -13,6 +23,9 @@ final class Plant {
     var species: String?
     var caudexType: String?
     var acquiredDate: Date?
+    /// 封面在详情页里怎么摆，见 CoverDisplayMode。
+    /// 存成可选的：轻量迁移不会给已有的行补默认值，读出来就是 nil。
+    var storedCoverDisplayMode: CoverDisplayMode?
     var lastWateredAt: Date?
     var sortOrder: Int = 0
     var notes: String?
@@ -50,6 +63,12 @@ final class Plant {
 // MARK: - 计算属性（不入库）
 
 extension Plant {
+    /// 没设置过就按填满裁剪来。
+    var coverDisplayMode: CoverDisplayMode {
+        get { storedCoverDisplayMode ?? .fill }
+        set { storedCoverDisplayMode = newValue }
+    }
+
     /// 时间轴，按拍摄时间倒序（最新在前）。
     var sortedGrowthEntries: [GrowthEntry] {
         (growthEntries ?? []).sorted { $0.capturedAt > $1.capturedAt }

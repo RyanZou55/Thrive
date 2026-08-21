@@ -3,8 +3,8 @@ import UIKit
 
 /// 系统相机，拍完直接把图交回来。
 ///
-/// 浇水只是随手拍一张留个记录，不需要生长照那套幽灵叠影 / 姿态对齐，
-/// 所以这里用系统自带的拍照界面，不走 CaptureView。
+/// 只给「添加植物」时拍封面用：那会儿植物还没建出来，也没有上一张照片，
+/// CaptureView 那套幽灵叠影 / 姿态对齐无从谈起，用系统拍照界面就够了。
 struct CameraPicker: UIViewControllerRepresentable {
     /// 拍完或取消都会回调，取消时传 nil。调用方负责关闭 sheet。
     var onFinish: (UIImage?) -> Void

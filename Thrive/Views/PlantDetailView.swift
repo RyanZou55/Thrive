@@ -1,4 +1,3 @@
-import PhotosUI
 import SwiftData
 import SwiftUI
 
@@ -7,16 +6,14 @@ struct PlantDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Bindable var plant: Plant
 
-    @State private var isCapturing = false
+    /// 非 nil 就是正在拍照，值决定这张最后存成生长照还是浇水记录。
+    @State private var capturePurpose: CapturePurpose?
     @State private var selectedEntry: GrowthEntry?
     @State private var selectedCareRecord: CareRecord?
     @State private var viewedPhoto: ViewedPhoto?
 
     // 浇水时可以顺手拍一张
     @State private var isChoosingWaterPhoto = false
-    @State private var isShowingCamera = false
-    @State private var isPickingFromLibrary = false
-    @State private var waterPhotoItem: PhotosPickerItem?
 
     var body: some View {
         ScrollView {
@@ -29,8 +26,8 @@ struct PlantDetailView: View {
         }
         .navigationTitle(plant.name)
         .navigationBarTitleDisplayMode(.inline)
-        .fullScreenCover(isPresented: $isCapturing) {
-            CaptureView(plant: plant)
+        .fullScreenCover(item: $capturePurpose) { purpose in
+            CaptureView(plant: plant, purpose: purpose)
         }
         .sheet(item: $selectedEntry) { entry in
             GrowthEntryDetailView(entry: entry, plant: plant)
@@ -42,35 +39,22 @@ struct PlantDetailView: View {
             PhotoViewerView(filename: photo.filename)
         }
         .confirmationDialog("记录这次浇水", isPresented: $isChoosingWaterPhoto, titleVisibility: .visible) {
-            if CameraPicker.isAvailable {
-                Button("拍照") { isShowingCamera = true }
-            }
-            Button("从相册选择") { isPickingFromLibrary = true }
-            Button("只记录，不拍照") { saveWatering(photo: nil) }
+            Button("拍照") { capturePurpose = .watering }
+            Button("只记录，不拍照") { saveWatering() }
             Button("取消", role: .cancel) {}
-        }
-        .fullScreenCover(isPresented: $isShowingCamera) {
-            CameraPicker { image in
-                isShowingCamera = false
-                if let image { saveWatering(photo: image) }
-            }
-            .ignoresSafeArea()
-        }
-        .photosPicker(isPresented: $isPickingFromLibrary, selection: $waterPhotoItem, matching: .images)
-        .onChange(of: waterPhotoItem) { _, newValue in
-            Task { await saveWatering(from: newValue) }
         }
     }
 
     // MARK: - 封面
 
+    /// 顶部展示的是最新一张生长照，没有就退回封面。
+    private var headerPhotoFilename: String? {
+        plant.latestGrowthEntry?.photoFilename ?? plant.coverPhotoFilename
+    }
+
     private var header: some View {
         VStack(spacing: 8) {
-            PhotoImageView(filename: plant.latestGrowthEntry?.photoFilename ?? plant.coverPhotoFilename)
-                .frame(height: 260)
-                .frame(maxWidth: .infinity)
-                .clipped()
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            coverPhoto
 
             VStack(alignment: .leading, spacing: 6) {
                 if let about = plant.notes, !about.isEmpty {
@@ -85,6 +69,48 @@ struct PlantDetailView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
+    }
+
+    /// 点开看大图；右下角那个小按钮换显示方式。
+    private var coverPhoto: some View {
+        Button {
+            if let headerPhotoFilename {
+                viewedPhoto = ViewedPhoto(filename: headerPhotoFilename)
+            }
+        } label: {
+            PhotoImageView(filename: headerPhotoFilename, contentMode: plant.coverDisplayMode.contentMode)
+                .frame(height: 260)
+                .frame(maxWidth: .infinity)
+                .clipped()
+        }
+        .buttonStyle(.plain)
+        .disabled(headerPhotoFilename == nil)
+        .background(.background.secondary)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(alignment: .bottomTrailing) {
+            displayModeMenu
+                .padding(10)
+        }
+    }
+
+    private var displayModeMenu: some View {
+        Menu {
+            Picker(selection: $plant.coverDisplayMode) {
+                ForEach(CoverDisplayMode.allCases) { mode in
+                    Label { Text(mode.title) } icon: { Image(systemName: mode.symbolName) }
+                        .tag(mode)
+                }
+            } label: {
+                Text("显示方式")
+            }
+        } label: {
+            Image(systemName: "aspectratio")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.white)
+                .frame(width: 32, height: 32)
+                .background(.black.opacity(0.4), in: Circle())
+        }
+        .accessibilityLabel(Text("显示方式"))
     }
 
     // MARK: - 两个写入口
@@ -103,20 +129,23 @@ struct PlantDetailView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
+            // maxHeight + fixedSize：让两个按钮一样高，
+            // 否则某种语言下一边的文字折成两行就会比另一边高出一截。
             HStack(spacing: 10) {
                 Button {
-                    isCapturing = true
+                    capturePurpose = .growth
                 } label: {
                     Label("拍生长照", systemImage: "camera.fill")
-                        .frame(maxWidth: .infinity)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
                 Button {
                     isChoosingWaterPhoto = true
                 } label: {
                     Label("浇水", systemImage: "drop.fill")
-                        .frame(maxWidth: .infinity)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
+            .fixedSize(horizontal: false, vertical: true)
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
         }
@@ -142,7 +171,7 @@ struct PlantDetailView: View {
                 VStack(spacing: 8) {
                     Text("还没有记录")
                         .foregroundStyle(.secondary)
-                    Button("拍第一张") { isCapturing = true }
+                    Button("拍第一张") { capturePurpose = .growth }
                         .buttonStyle(.bordered)
                 }
                 .frame(maxWidth: .infinity)
@@ -171,22 +200,9 @@ struct PlantDetailView: View {
 
     // MARK: - 操作
 
-    /// 从相册选完图后走这条。
-    private func saveWatering(from item: PhotosPickerItem?) async {
-        guard let item,
-              let data = try? await item.loadTransferable(type: Data.self),
-              let image = UIImage(data: data)
-        else { return }
-        waterPhotoItem = nil
-        saveWatering(photo: image)
-    }
-
-    /// photo 为 nil 就是「只记录，不拍照」。
-    private func saveWatering(photo: UIImage?) {
-        let record = CareRecord(
-            type: .water,
-            photoFilename: photo.flatMap { PhotoStore.shared.save($0) }
-        )
+    /// 「只记录，不拍照」。带照片的那条在 CaptureView 里存。
+    private func saveWatering() {
+        let record = CareRecord(type: .water)
         record.plant = plant
         modelContext.insert(record)
 
@@ -194,6 +210,29 @@ struct PlantDetailView: View {
         plant.touch()
 
         try? modelContext.save()
+    }
+}
+
+extension CoverDisplayMode {
+    var title: String {
+        switch self {
+        case .fill: String(localized: "填满裁剪")
+        case .fit: String(localized: "完整显示")
+        }
+    }
+
+    var symbolName: String {
+        switch self {
+        case .fill: "rectangle.fill"
+        case .fit: "rectangle.inset.filled"
+        }
+    }
+
+    var contentMode: ContentMode {
+        switch self {
+        case .fill: .fill
+        case .fit: .fit
+        }
     }
 }
 
