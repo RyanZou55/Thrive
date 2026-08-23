@@ -156,6 +156,17 @@
         }
       }
     },
+    "入手日期": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Date acquired"
+          }
+        }
+      }
+    },
     "入手日期（可选）": {
       "extractionState": "manual",
       "localizations": {
@@ -697,6 +708,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Log this watering?"
+          }
+        }
+      }
+    },
+    "记录入手日期": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Record date acquired"
           }
         }
       }

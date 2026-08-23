@@ -43,6 +43,10 @@ struct PlantDetailView: View {
             Button("只记录，不拍照") { saveWatering() }
             Button("取消", role: .cancel) {}
         }
+        .onDisappear {
+            // 入手日期和封面显示方式是直接写进模型的，关掉时落一次盘。
+            try? modelContext.save()
+        }
     }
 
     // MARK: - 封面
@@ -61,14 +65,58 @@ struct PlantDetailView: View {
                     Text(about)
                         .font(.subheadline)
                 }
-                if let acquiredDate = plant.acquiredDate {
-                    Text("入手于 \(acquiredDate.formatted(date: .abbreviated, time: .omitted))")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
+                acquiredDateRow
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
+    }
+
+    /// 入手日期事后也能改。没记过就先给个补记的入口。
+    private var acquiredDateRow: some View {
+        HStack(spacing: 6) {
+            if plant.acquiredDate == nil {
+                Button("记录入手日期") {
+                    // 补记时别默认今天 —— 已经养了半年的植株填今天，
+                    // 时间轴上的「第 N 天」会全部消失。用最早那张生长照当起点，
+                    // 和 dayLabel 算天数时的回退链保持一致。
+                    plant.acquiredDate = plant.sortedGrowthEntries.last?.capturedAt ?? plant.createdAt
+                    plant.touch()
+                }
+            } else {
+                Text("入手于")
+                    .foregroundStyle(.secondary)
+                DatePicker(
+                    "入手日期",
+                    selection: acquiredDate,
+                    in: ...Date(),
+                    displayedComponents: .date
+                )
+                .labelsHidden()
+
+                Button {
+                    plant.acquiredDate = nil
+                    plant.touch()
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.tertiary)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text("不记录入手日期"))
+            }
+        }
+        .font(.caption)
+    }
+
+    /// acquiredDate 是可选的，DatePicker 要非可选，这里桥一下。
+    /// 只在 plant.acquiredDate != nil 时使用。
+    private var acquiredDate: Binding<Date> {
+        Binding(
+            get: { plant.acquiredDate ?? Date() },
+            set: { newValue in
+                plant.acquiredDate = newValue
+                plant.touch()
+            }
+        )
     }
 
     /// 点开看大图；右下角那个小按钮换显示方式。
