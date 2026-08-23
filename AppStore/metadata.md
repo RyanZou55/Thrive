@@ -199,14 +199,28 @@ Info.plist 里已经写好 `ITSAppUsesNonExemptEncryption = false`，
 发更新时 ASC 会要求填「此版本的新功能 / What's New in This Version」，中英各一份。
 每发一版在这里往上叠一段，最新的放最前面。
 
-### 1.1
+### 1.1.1
+
+简体中文：
+
+```
+入手日期现在在植物详情页里也能改：点一下日期就能调整，也可以清除，或者给以前没记过的植株补记。
+```
+
+English：
+
+```
+You can now change a plant's date acquired right from its detail page — adjust it, clear it, or fill one in for a plant that never had one.
+```
+
+### 1.1（已上架）
 
 简体中文：
 
 ```
 封面照片现在可以点开全屏看，也能选择填满裁剪或完整显示。
 浇水拍照改用和拍生长照相同的取景界面，同样有幽灵叠影，能对着上一张把植株摆回原位。
-添加植物时封面可以直接拍照；入手日期的选择更直接，而且事后在植物详情页还能随时改。
+添加植物时封面可以直接拍照，入手日期的选择也更直接了。
 ```
 
 English：
@@ -214,7 +228,7 @@ English：
 ```
 Cover photos now open full screen, and you can choose between fill and fit.
 Watering photos use the same viewfinder as growth photos, ghost overlay included, so you can line the plant up against the previous shot.
-You can now shoot a cover photo straight from the camera when adding a plant. Picking a date acquired takes one tap less, and you can change it later from the plant's detail page.
+You can now shoot a cover photo straight from the camera when adding a plant, and picking a date acquired takes one tap less.
 ```
 
 ---
