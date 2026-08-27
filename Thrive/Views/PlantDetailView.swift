@@ -405,7 +405,11 @@ struct GrowthEntryRow: View {
                                 .lineLimit(2)
                         }
 
-                        if entry.pose != nil {
+                        if entry.hasSpin {
+                            Label("可以转着看", systemImage: "arrow.trianglehead.2.clockwise.rotate.90")
+                                .font(.caption2)
+                                .foregroundStyle(.tertiary)
+                        } else if entry.pose != nil {
                             Label("已记录拍摄角度", systemImage: "gyroscope")
                                 .font(.caption2)
                                 .foregroundStyle(.tertiary)

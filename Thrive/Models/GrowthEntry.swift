@@ -63,6 +63,11 @@ final class GrowthEntry {
 }
 
 extension GrowthEntry {
+    /// 帧数够不够转起来。少于这个数当普通单张记录看待。
+    var hasSpin: Bool {
+        (spinFilenames?.count ?? 0) >= SpinFrameSelector.minimumFrames
+    }
+
     /// 三个角度都存在时，还原成一个 DevicePose，供下次拍照做对比。
     var pose: DevicePose? {
         guard let posePitch, let poseRoll, let poseYaw else { return nil }

@@ -52,6 +52,25 @@ final class PhotoStore {
     private static let spinMaxDimension: CGFloat = 1280
     private static let spinQuality: CGFloat = 0.7
 
+    /// 按目标尺寸解码一帧，走 ImageIO 的缩略图路径 ——
+    /// 它不会先把原图整幅解开，内存和耗时都比读进来再缩小得多。
+    ///
+    /// 不进 cache：一组 24 帧会把时间轴的缓存整个挤掉（countLimit 只有 80）。
+    func spinFrame(named filename: String, maxPixelSize: Int) -> UIImage? {
+        let url = AppContainer.photosURL.appendingPathComponent(filename)
+        guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
+
+        let options: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxPixelSize,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+        ]
+        guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
+            return nil
+        }
+        return UIImage(cgImage: cgImage)
+    }
+
     func deleteSpinFrames(_ filenames: [String]?) {
         guard let filenames else { return }
         for filename in filenames {

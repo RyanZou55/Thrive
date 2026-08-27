@@ -29,15 +29,25 @@ struct GrowthEntryDetailView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    // 点开进全屏，那里能双指缩放
-                    Button {
-                        viewedPhoto = ViewedPhoto(filename: entry.photoFilename)
-                    } label: {
-                        PhotoImageView(filename: entry.photoFilename, contentMode: .fit)
-                            .frame(maxWidth: .infinity)
-                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    if entry.hasSpin, let spinFilenames = entry.spinFilenames {
+                        SpinPlayerView(filenames: spinFilenames) {
+                            viewedPhoto = ViewedPhoto(filename: entry.photoFilename)
+                        }
+
+                        Text("左右拖动可以转，点开看大图")
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                    } else {
+                        // 点开进全屏，那里能双指缩放
+                        Button {
+                            viewedPhoto = ViewedPhoto(filename: entry.photoFilename)
+                        } label: {
+                            PhotoImageView(filename: entry.photoFilename, contentMode: .fit)
+                                .frame(maxWidth: .infinity)
+                                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
 
                     NoteEditor(text: noteText, placeholder: "这次有什么变化？（可选）")
 
