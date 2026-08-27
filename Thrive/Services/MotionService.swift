@@ -9,8 +9,9 @@ struct DevicePose: Equatable {
     var roll: Double   // 翻滚：手机左右歪
     var yaw: Double    // 偏航：水平朝向
 
-    /// 与参考姿态的差值。yaw 用的是磁北参考，室内会漂，
-    /// 所以对齐判断只看 pitch 和 roll —— 这两个是重力参考的，稳。
+    /// 与参考姿态的差值。yaw 的零点是每次启动时的朝向，两次拍摄之间没有可比性，
+    /// 所以跨天的对齐判断只看 pitch 和 roll —— 这两个是重力参考的，稳。
+    /// （单次拍摄会话内 yaw 是可靠的，转盘就靠它定位每一帧。）
     func difference(from reference: DevicePose) -> (pitch: Double, roll: Double) {
         (
             pitch: DevicePose.normalizedAngle(pitch - reference.pitch),
@@ -79,6 +80,12 @@ final class MotionService: ObservableObject {
     private let manager = CMMotionManager()
     private let logger = Logger(subsystem: "com.ryanzou.thrive", category: "Motion")
 
+    /// 录转盘时的 yaw 轨迹。非 nil 就表示正在录。
+    ///
+    /// 时刻用 CMDeviceMotion.timestamp（开机以来的秒数），和录制起点记的
+    /// systemUptime 同源，两条时间线才对得上。
+    private var yawTrack: [SpinFrameSelector.Sample]?
+
     init() {
         isAvailable = manager.isDeviceMotionAvailable
     }
@@ -103,11 +110,13 @@ final class MotionService: ObservableObject {
         manager.startDeviceMotionUpdates(using: .xArbitraryZVertical, to: .main) { [weak self] motion, _ in
             guard let self, let motion else { return }
             let attitude = motion.attitude
+            let yaw = attitude.yaw * 180 / .pi
             self.currentPose = DevicePose(
                 pitch: attitude.pitch * 180 / .pi,
                 roll: attitude.roll * 180 / .pi,
-                yaw: attitude.yaw * 180 / .pi
+                yaw: yaw
             )
+            self.appendToYawTrack(time: motion.timestamp, yaw: yaw)
         }
         #endif
     }
@@ -129,6 +138,22 @@ final class MotionService: ObservableObject {
         }
     }
     #endif
+
+    // MARK: - 转盘 yaw 轨迹
+
+    func beginYawTrack() {
+        yawTrack = []
+    }
+
+    /// 取走轨迹并停止记录。
+    func endYawTrack() -> [SpinFrameSelector.Sample] {
+        defer { yawTrack = nil }
+        return yawTrack ?? []
+    }
+
+    private func appendToYawTrack(time: TimeInterval, yaw: Double) {
+        yawTrack?.append(SpinFrameSelector.Sample(time: time, yaw: yaw))
+    }
 
     func stop() {
         guard manager.isDeviceMotionActive else { return }
