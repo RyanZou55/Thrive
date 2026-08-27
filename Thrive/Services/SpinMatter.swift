@@ -13,31 +13,13 @@ import Vision
 enum SpinMatter {
     private static let logger = Logger(subsystem: "com.ryanzou.thrive", category: "SpinMatter")
 
-    /// 一组帧一起抠。
+    /// 抠一帧。抠不出主体返回 nil，由流水线决定整组怎么办
+    /// （只要有一帧没抠成，整组都退回原图 —— 23 帧干净背景里混进一帧带房间的，
+    /// 转到那儿会闪一下，比整组都留着背景更像出了 bug）。
     ///
-    /// 只要有一帧没抠成，整组都退回原图 —— 23 帧干净背景里混进一帧带房间的，
-    /// 转到那儿会闪一下，比整组都留着背景更像出了 bug。
-    static func matteAll(_ images: [UIImage]) async -> [UIImage] {
-        guard !images.isEmpty else { return [] }
-
-        return await Task.detached(priority: .userInitiated) {
-            // 24 帧共用一个 CIContext。每帧新建一个的话，光是建上下文就比抠图本身还慢。
-            let context = CIContext()
-            var matted: [UIImage] = []
-            matted.reserveCapacity(images.count)
-
-            for image in images {
-                guard let result = matte(image, context: context) else {
-                    logger.info("有帧没抠出主体，整组保留原图")
-                    return images
-                }
-                matted.append(result)
-            }
-            return matted
-        }.value
-    }
-
-    private static func matte(_ image: UIImage, context: CIContext) -> UIImage? {
+    /// context 由调用方传进来，一组帧共用一个。每帧新建一个的话，
+    /// 光是建上下文就比抠图本身还慢。
+    static func matte(_ image: UIImage, context: CIContext) -> UIImage? {
         guard let cgImage = image.cgImage else { return nil }
 
         let request = VNGenerateForegroundInstanceMaskRequest()

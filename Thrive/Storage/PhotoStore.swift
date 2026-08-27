@@ -52,21 +52,6 @@ final class PhotoStore {
     private static let spinMaxDimension: CGFloat = 1280
     private static let spinQuality: CGFloat = 0.7
 
-    /// 存一组转盘帧，返回的文件名顺序就是角度顺序。
-    /// 中途失败就把已经写下去的删掉再返回 nil —— 半组转盘播不了，不如不留。
-    func saveSpinFrames(_ images: [UIImage]) -> [String]? {
-        var filenames: [String] = []
-        for image in images {
-            guard let filename = saveHEIC(image) else {
-                logger.error("转盘帧写入中断，回滚已写入的 \(filenames.count) 帧")
-                deleteSpinFrames(filenames)
-                return nil
-            }
-            filenames.append(filename)
-        }
-        return filenames
-    }
-
     func deleteSpinFrames(_ filenames: [String]?) {
         guard let filenames else { return }
         for filename in filenames {
@@ -74,9 +59,11 @@ final class PhotoStore {
         }
     }
 
-    /// 帧的来源是 4K 视频抽帧，一定会走到缩放那一步，
+    /// 存一帧，返回文件名。
+    ///
+    /// 帧的来源是视频抽帧，一定会走到缩放那一步，
     /// 而缩放是重绘出来的，方向已经正过了 —— 所以这里直接用 cgImage。
-    private func saveHEIC(_ image: UIImage) -> String? {
+    func saveSpinFrame(_ image: UIImage) -> String? {
         let resized = image.resizedPreservingAspect(maxDimension: Self.spinMaxDimension)
         guard let cgImage = resized.cgImage else {
             logger.error("拿不到 CGImage，转盘帧没法编码")
