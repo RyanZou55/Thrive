@@ -33,6 +33,12 @@ struct CaptureView: View {
 
     @State private var capturedImage: UIImage?
     @State private var poseAtCapture: DevicePose?
+    @State private var isSpinMode = false
+    @State private var isProcessingSpin = false
+    /// 流水线已经把帧写到磁盘上了，取消时得把它们删掉。
+    @State private var pendingSpin: SpinPipeline.Output?
+    @State private var spinStartYaw: Double?
+    @State private var spinWarning: String?
     @State private var note = ""
     @State private var pickerItem: PhotosPickerItem?
     @State private var wasAligned = false
@@ -102,7 +108,101 @@ struct CaptureView: View {
         .onChange(of: pickerItem) { _, newValue in
             Task { await loadFromLibrary(newValue) }
         }
+        .onChange(of: camera.recordedMovieURL) { _, newValue in
+            guard newValue != nil else { return }
+            Task { await processSpinRecording() }
+        }
+        .onChange(of: camera.recordingFailure) { _, failure in
+            guard let failure else { return }
+            _ = motion.endYawTrack()
+            spinWarning = failure
+            camera.recordingFailure = nil
+        }
+        .onChange(of: motion.yawCoverage) { _, coverage in
+            // 转够一圈自动收工，用户不用再回去点一下。
+            if camera.isRecording && coverage >= 360 {
+                camera.stopSpinRecording()
+            }
+        }
+        .alert(
+            String(localized: "这组没存下来"),
+            isPresented: Binding(get: { spinWarning != nil }, set: { if !$0 { spinWarning = nil } })
+        ) {
+            Button("知道了", role: .cancel) { spinWarning = nil }
+        } message: {
+            Text(spinWarning ?? "")
+        }
     }
+
+    // MARK: - 转盘
+
+    private var spinProgress: Double {
+        min(motion.yawCoverage / 360, 1)
+    }
+
+    /// 转盘要靠陀螺仪定位每一帧，没有姿态数据就只能拍单张。
+    /// 浇水记录也不做转盘 —— 那是随手一拍，不值当绕一圈。
+    private var canUseSpin: Bool {
+        purpose == .growth && motion.isAvailable
+    }
+
+    private var spinModePicker: some View {
+        Picker("", selection: $isSpinMode) {
+            Text("单张").tag(false)
+            Text("转盘").tag(true)
+        }
+        .pickerStyle(.segmented)
+        .frame(width: 180)
+        .disabled(camera.isRecording || isProcessingSpin)
+    }
+
+    private var processingOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.6).ignoresSafeArea()
+            VStack(spacing: 12) {
+                ProgressView().tint(.white)
+                Text("正在处理这组照片…")
+                    .font(.subheadline)
+                    .foregroundStyle(.white)
+            }
+        }
+    }
+
+    private func processSpinRecording() async {
+        guard let movieURL = camera.recordedMovieURL,
+              let startUptime = camera.recordingStartUptime
+        else { return }
+
+        isProcessingSpin = true
+        defer {
+            isProcessingSpin = false
+            camera.discardRecordedMovie()
+        }
+
+        let samples = motion.endYawTrack()
+        let frames = SpinFrameSelector.select(from: samples)
+        guard !frames.isEmpty else {
+            spinWarning = String(
+                localized: "绕得还不够一圈的三分之一，转盘至少要转过 105°。再走一遍试试。"
+            )
+            return
+        }
+
+        guard let output = await SpinPipeline.process(
+            movieAt: movieURL,
+            frames: frames,
+            recordingStartUptime: startUptime
+        ) else {
+            spinWarning = String(localized: "这段视频没能抽出完整的一组帧，再走一遍试试。")
+            return
+        }
+
+        poseAtCapture = motion.currentPose
+        spinStartYaw = samples.first?.yaw
+        pendingSpin = output
+        capturedImage = output.coverImage
+    }
+
 
     // MARK: - 取景
 
@@ -141,7 +241,9 @@ struct CaptureView: View {
                     .ignoresSafeArea()
 
                 if showsGrid {
-                    CompositionGrid(showsReferenceBox: showsReferenceBox)
+                    // 转盘模式强制开参考框：手机 yaw 转过的角度等于绕植物转过的角度，
+                    // 这个前提只在镜头一直对着植物时才成立。框就是用来保证这件事的。
+                    CompositionGrid(showsReferenceBox: showsReferenceBox || isSpinMode)
                         .ignoresSafeArea()
                 }
             }
@@ -150,6 +252,10 @@ struct CaptureView: View {
                 topBar
                 Spacer()
                 bottomControls
+            }
+
+            if isProcessingSpin {
+                processingOverlay
             }
         }
     }
@@ -211,6 +317,21 @@ struct CaptureView: View {
                 .padding(.horizontal, 24)
             }
 
+            if isSpinMode {
+                Text(camera.isRecording
+                     ? String(format: String(localized: "已绕过 %.0f° · 让植物一直待在框里"), motion.yawCoverage)
+                     : String(localized: "举着手机绕植物走一圈，镜头始终对着它"))
+                    .font(.caption)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(.black.opacity(0.45), in: Capsule())
+            }
+
+            if canUseSpin {
+                spinModePicker
+            }
+
             HStack {
                 PhotosPicker(selection: $pickerItem, matching: .images) {
                     Image(systemName: "photo.on.rectangle")
@@ -219,22 +340,48 @@ struct CaptureView: View {
                         .frame(width: 52, height: 52)
                         .background(.black.opacity(0.35), in: Circle())
                 }
+                .disabled(camera.isRecording)
+                .opacity(camera.isRecording ? 0.3 : 1)
 
                 Spacer()
 
                 Button {
-                    camera.capturePhoto()
+                    if isSpinMode {
+                        toggleSpinRecording()
+                    } else {
+                        camera.capturePhoto()
+                    }
                 } label: {
                     ZStack {
                         Circle()
-                            .strokeBorder(.white, lineWidth: 4)
+                            .strokeBorder(.white.opacity(0.35), lineWidth: 4)
                             .frame(width: 74, height: 74)
-                        Circle()
-                            .fill(alignment.isAligned ? Color.green : Color.white)
-                            .frame(width: 60, height: 60)
+
+                        if isSpinMode {
+                            // 进度环：绕了多少画多少，转够一圈自动停。
+                            Circle()
+                                .trim(from: 0, to: spinProgress)
+                                .stroke(Color.green, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                                .rotationEffect(.degrees(-90))
+                                .frame(width: 74, height: 74)
+                        } else {
+                            Circle()
+                                .strokeBorder(.white, lineWidth: 4)
+                                .frame(width: 74, height: 74)
+                        }
+
+                        if isSpinMode && camera.isRecording {
+                            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                .fill(Color.red)
+                                .frame(width: 32, height: 32)
+                        } else {
+                            Circle()
+                                .fill(spinShutterFill)
+                                .frame(width: 60, height: 60)
+                        }
                     }
                 }
-                .disabled(camera.status != .ready || camera.isCapturing)
+                .disabled(camera.status != .ready || camera.isCapturing || isProcessingSpin)
                 .opacity(camera.status == .ready ? 1 : 0.4)
 
                 Spacer()
@@ -244,6 +391,20 @@ struct CaptureView: View {
             }
             .padding(.horizontal, 24)
             .padding(.bottom, 16)
+        }
+    }
+
+    private var spinShutterFill: Color {
+        if isSpinMode { return .red }
+        return alignment.isAligned ? .green : .white
+    }
+
+    private func toggleSpinRecording() {
+        if camera.isRecording {
+            camera.stopSpinRecording()
+        } else {
+            motion.beginYawTrack()
+            camera.startSpinRecording()
         }
     }
 
@@ -298,6 +459,16 @@ struct CaptureView: View {
                         .lineLimit(2...5)
                         .textFieldStyle(.roundedBorder)
 
+                    if let pendingSpin {
+                        Label(
+                            String(format: String(localized: "转盘已就绪：%d 帧"), pendingSpin.spinFilenames.count),
+                            systemImage: "arrow.trianglehead.2.clockwise.rotate.90"
+                        )
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+
                     // 浇水记录不存姿态，就别提它。
                     if purpose == .growth, let poseAtCapture {
                         Label(
@@ -337,6 +508,11 @@ struct CaptureView: View {
     }
 
     private func discard() {
+        // 流水线已经把帧写到磁盘上了，这里不删就成了孤儿文件。
+        PhotoStore.shared.deleteSpinFrames(pendingSpin?.spinFilenames)
+        pendingSpin = nil
+        spinStartYaw = nil
+
         capturedImage = nil
         camera.capturedImage = nil
         poseAtCapture = nil
@@ -358,6 +534,8 @@ struct CaptureView: View {
                 refEntryID: referenceEntry?.id,
                 pose: poseAtCapture
             )
+            entry.spinFilenames = pendingSpin?.spinFilenames
+            entry.spinStartYaw = spinStartYaw
             entry.plant = plant
             modelContext.insert(entry)
 
@@ -375,6 +553,8 @@ struct CaptureView: View {
 
         plant.touch()
         try? modelContext.save()
+        // 帧已经归到记录名下，别再当成待清理的孤儿。
+        pendingSpin = nil
         dismiss()
     }
 }

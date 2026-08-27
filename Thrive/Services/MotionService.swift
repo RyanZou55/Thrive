@@ -80,11 +80,19 @@ final class MotionService: ObservableObject {
     private let manager = CMMotionManager()
     private let logger = Logger(subsystem: "com.ryanzou.thrive", category: "Motion")
 
+    /// 录转盘时已经绕过的角度（度），进度环用。
+    /// 取「走到过的最远处」，手抖回退不算数 —— 和挑帧时的口径一致。
+    @Published private(set) var yawCoverage: Double = 0
+
     /// 录转盘时的 yaw 轨迹。非 nil 就表示正在录。
     ///
     /// 时刻用 CMDeviceMotion.timestamp（开机以来的秒数），和录制起点记的
     /// systemUptime 同源，两条时间线才对得上。
     private var yawTrack: [SpinFrameSelector.Sample]?
+    private var cumulativeYaw: Double = 0
+    private var farthestForward: Double = 0
+    private var farthestBackward: Double = 0
+    private var lastTrackedYaw: Double?
 
     init() {
         isAvailable = manager.isDeviceMotionAvailable
@@ -143,6 +151,11 @@ final class MotionService: ObservableObject {
 
     func beginYawTrack() {
         yawTrack = []
+        cumulativeYaw = 0
+        farthestForward = 0
+        farthestBackward = 0
+        lastTrackedYaw = nil
+        yawCoverage = 0
     }
 
     /// 取走轨迹并停止记录。
@@ -152,7 +165,15 @@ final class MotionService: ObservableObject {
     }
 
     private func appendToYawTrack(time: TimeInterval, yaw: Double) {
+        guard yawTrack != nil else { return }
         yawTrack?.append(SpinFrameSelector.Sample(time: time, yaw: yaw))
+
+        defer { lastTrackedYaw = yaw }
+        guard let lastTrackedYaw else { return }
+        cumulativeYaw += DevicePose.normalizedAngle(yaw - lastTrackedYaw)
+        farthestForward = max(farthestForward, cumulativeYaw)
+        farthestBackward = min(farthestBackward, cumulativeYaw)
+        yawCoverage = max(farthestForward, -farthestBackward)
     }
 
     func stop() {

@@ -25,6 +25,8 @@ final class CameraService: NSObject, ObservableObject {
     /// 录制中的一段转盘视频，停录后由 CaptureView 取走抽帧。
     @Published private(set) var isRecording = false
     @Published var recordedMovieURL: URL?
+    /// 录制失败的原因。不报出来的话，用户绕完一圈回来会发现什么都没发生。
+    @Published var recordingFailure: String?
 
     private let photoOutput = AVCapturePhotoOutput()
     private let movieOutput = AVCaptureMovieFileOutput()
@@ -287,6 +289,7 @@ extension CameraService: AVCaptureFileOutputRecordingDelegate {
             if let error {
                 self.logger.error("转盘录制失败: \(error.localizedDescription, privacy: .public)")
                 try? FileManager.default.removeItem(at: outputFileURL)
+                self.recordingFailure = error.localizedDescription
                 return
             }
             self.recordedMovieURL = outputFileURL
