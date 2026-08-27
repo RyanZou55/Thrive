@@ -110,6 +110,7 @@ struct GrowthEntryDetailView: View {
 
     private func delete() {
         let filename = entry.photoFilename
+        let spinFilenames = entry.spinFilenames
         // 封面正好用的是这张的话，回退到剩下最新的一张。
         if plant.coverPhotoFilename == filename {
             let remaining = plant.sortedGrowthEntries.first { $0.id != entry.id }
@@ -120,6 +121,7 @@ struct GrowthEntryDetailView: View {
         modelContext.delete(entry)
         try? modelContext.save()
         PhotoStore.shared.delete(filename: filename)
+        PhotoStore.shared.deleteSpinFrames(spinFilenames)
         dismiss()
     }
 }

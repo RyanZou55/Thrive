@@ -94,6 +94,7 @@ struct PlantGridView: View {
         PhotoStore.shared.delete(filename: plant.coverPhotoFilename)
         for entry in plant.growthEntries ?? [] {
             PhotoStore.shared.delete(filename: entry.photoFilename)
+            PhotoStore.shared.deleteSpinFrames(entry.spinFilenames)
         }
         for record in plant.careRecords ?? [] {
             PhotoStore.shared.delete(filename: record.photoFilename)

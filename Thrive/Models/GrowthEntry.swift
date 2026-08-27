@@ -20,6 +20,12 @@ final class GrowthEntry {
     var poseRoll: Double?
     var poseYaw: Double?
 
+    /// 转盘帧的文件名，按角度顺序排（第 0 帧和 photoFilename 是同一个角度）。
+    /// 没拍转盘就是 nil —— 一条记录仍然可以只有一张照片。
+    var spinFilenames: [String]? = nil
+    /// 第 0 帧拍摄时的 yaw，单位：度。帧间隔固定 15°，据此能还原出每帧的角度。
+    var spinStartYaw: Double? = nil
+
     // 可选测量值，v1.0 不做输入 UI，先把字段留好
     var heightCm: Double?
     var caudexWidthMm: Double?
