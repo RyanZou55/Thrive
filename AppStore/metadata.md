@@ -65,14 +65,6 @@ Thrive 解决的就是这件事。
 · 构图网格
 九宫格加可选参考框，帮你把花盆每次落在同一个位置。
 
-【转着看】
-
-举着手机绕植物走一圈，Thrive 会按转过的角度自动挑出等间隔的 24 帧。详情页里左右一拖，植株就转起来了——块根的胖瘦、枝条往哪边长，一张正面照看不出来的，转一圈都能看见。
-
-背景会自动抠掉，所以在哪儿拍都无所谓，转起来只有植物本身。不用非得转满一圈，转过三分之一以上就能存下来。
-
-不拖它就是一张普通照片。转盘只是多出来的一层，时间轴还是原来那条时间轴。
-
 【一条时间轴】
 
 生长照和浇水记录按时间排在一起，每条都能配一句备注，并标出距入手第几天。照片点开可以双指放大细看，也能存回你自己的相册。备注写完之后还能改。
@@ -151,14 +143,6 @@ Thrive reads your phone's pitch and roll and compares them to the angle saved wi
 
 · Composition grid
 A rule-of-thirds grid plus an optional reference box, so the pot lands in the same spot every time.
-
-TURN IT AROUND
-
-Walk a circle around the plant and Thrive picks 24 evenly spaced frames based on how far you turned. In the detail view, drag left or right and the plant spins — how thick the caudex got, which way the branches lean, the things a single front-on shot can't tell you.
-
-The background is removed automatically, so it doesn't matter where you shoot. Only the plant turns. You don't need a full circle either; a third of the way around is enough to save.
-
-Leave it alone and it's just a photo. The spin is an extra layer — the timeline is still the same timeline.
 
 ONE TIMELINE
 
@@ -298,5 +282,6 @@ You can now shoot a cover photo straight from the camera when adding a plant, an
 
 截图快捷键是电源键 + 音量上键，中英文各一份（切系统语言重截）。
 
-> 1.2 的商店描述里新增了「转着看 / TURN IT AROUND」一节，
-> 但截图里一张转盘都没有的话，审核和用户都对不上号。补齐再提交。
+> 1.2 的商店描述**没有**提转盘，只有「此版本的新功能」里写了。
+> 所以转盘截图不是上架硬门槛 —— 但商店页面一张都不放的话，
+> 用户翻截图时看不出这版多了什么。
