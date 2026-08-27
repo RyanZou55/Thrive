@@ -32,8 +32,23 @@ enum SpinPipeline {
         guard !frames.isEmpty else { return nil }
 
         let asset = AVURLAsset(url: url)
-        let times = frames.map {
-            CMTime(seconds: $0.time - recordingStartUptime, preferredTimescale: 600)
+        var times = frames.map {
+            CMTime(seconds: max(0, $0.time - recordingStartUptime), preferredTimescale: 600)
+        }
+
+        // 超过视频长度的时刻会直接取失败，而缺一帧是整组作废的 ——
+        // 与其丢掉整组，不如把尾巴上超界的那几帧砍掉，当成转得短一点的一组。
+        // 播放器对不满整圈的转盘本来就是拖到头就停，不会绕回去跳。
+        if let duration = try? await asset.load(.duration), duration.isNumeric {
+            let inRange = times.filter { $0.seconds < duration.seconds }
+            if inRange.count < times.count {
+                logger.info("有 \(times.count - inRange.count) 帧落在视频结束之后，砍掉")
+                times = inRange
+            }
+        }
+        guard times.count >= SpinFrameSelector.minimumFrames else {
+            logger.error("砍完不够 \(SpinFrameSelector.minimumFrames) 帧，这组不要了")
+            return nil
         }
 
         var filenames: [String]

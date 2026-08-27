@@ -179,7 +179,16 @@ struct CaptureView: View {
             camera.discardRecordedMovie()
         }
 
-        let samples = motion.endYawTrack()
+        // 只留录制窗口之内的采样。
+        //
+        // 前边界：轨迹是点快门就开的，而录制起点是回调里记的，晚几十毫秒 ——
+        // 不裁的话开头几帧算出来的时刻是负数，会全部取到同一张，转起来先卡住再跳。
+        //
+        // 后边界：按停之后到 didFinishRecording 之间轨迹还在采，那会儿人还在走，
+        // 可能又跨过一个 15° 的坎，算出来的时刻落在视频结束之后 —— 那一帧会直接取失败。
+        let samples = motion.endYawTrack().filter {
+            $0.time >= startUptime && $0.time <= (camera.recordingStopUptime ?? .greatestFiniteMagnitude)
+        }
         let frames = SpinFrameSelector.select(from: samples)
         guard !frames.isEmpty else {
             spinWarning = String(
@@ -271,6 +280,9 @@ struct CaptureView: View {
                     .padding(10)
                     .background(.black.opacity(0.35), in: Circle())
             }
+            // 录到一半关页面的话，录制不会被正常收尾，临时视频也留在那儿。
+            .disabled(camera.isRecording || isProcessingSpin)
+            .opacity(camera.isRecording || isProcessingSpin ? 0.3 : 1)
 
             Spacer()
 
@@ -405,6 +417,11 @@ struct CaptureView: View {
         } else {
             motion.beginYawTrack()
             camera.startSpinRecording()
+            // 录没起来（比如拿不到视频连接）就别让轨迹空转 ——
+            // 否则进度环会一路画下去，而根本没有在录。
+            if !camera.isRecording {
+                _ = motion.endYawTrack()
+            }
         }
     }
 

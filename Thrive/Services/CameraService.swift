@@ -35,6 +35,9 @@ final class CameraService: NSObject, ObservableObject {
     private var videoDevice: AVCaptureDevice?
     /// 录制真正开始那一刻的 uptime。yaw 轨迹靠它对到视频时间轴上。
     private(set) var recordingStartUptime: TimeInterval?
+    /// 按下停止那一刻的 uptime。视频一定录到了这个点之后（停止是异步收尾的），
+    /// 所以拿它当 yaw 轨迹的上界是安全的。
+    private(set) var recordingStopUptime: TimeInterval?
     private let logger = Logger(subsystem: "com.ryanzou.thrive", category: "Camera")
 
     // MARK: - 生命周期
@@ -157,11 +160,13 @@ final class CameraService: NSObject, ObservableObject {
         isRecording = true
         recordedMovieURL = nil
         recordingStartUptime = nil
+        recordingStopUptime = nil
         movieOutput.startRecording(to: url, recordingDelegate: self)
     }
 
     func stopSpinRecording() {
         guard isRecording else { return }
+        recordingStopUptime = ProcessInfo.processInfo.systemUptime
         movieOutput.stopRecording()
     }
 
