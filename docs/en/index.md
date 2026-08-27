@@ -18,6 +18,14 @@ Three alignment aids while you shoot:
 - **Angle guide** — reads your phone's pitch and roll, compares them to the angle saved with the last shot, and taps you when you're lined up
 - **Composition grid** — rule-of-thirds plus an optional reference box, so the pot lands in the same spot
 
+## Turn it around (new in v1.2)
+
+Walk a circle around the plant and Thrive picks 24 evenly spaced frames based on how far you turned. Drag left or right in the detail view and the plant spins.
+
+The background is removed automatically, so it doesn't matter where you shoot — only the plant turns. A full circle isn't required: against a wall, up on a shelf, a third of the way around is enough to save.
+
+Leave it alone and it's just a photo. The timeline is still the same timeline.
+
 ## Also
 
 - Growth photos and waterings share one timeline; every entry can carry a note, editable afterwards

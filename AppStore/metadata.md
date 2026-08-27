@@ -36,7 +36,7 @@ Thrive 植物生长记录
 ## 关键词 [100 字符，逗号分隔不留空格]
 
 ```
-多肉,仙人掌,块根,块根植物,生长记录,植物养护,浇水记录,园艺,延时摄影,打卡,植物日记
+多肉,仙人掌,块根,块根植物,生长记录,植物养护,浇水记录,园艺,延时摄影,打卡,植物日记,转盘,360度,多角度
 ```
 
 ## 促销文本 [170]
@@ -64,6 +64,14 @@ Thrive 解决的就是这件事。
 
 · 构图网格
 九宫格加可选参考框，帮你把花盆每次落在同一个位置。
+
+【转着看】
+
+举着手机绕植物走一圈，Thrive 会按转过的角度自动挑出等间隔的 24 帧。详情页里左右一拖，植株就转起来了——块根的胖瘦、枝条往哪边长，一张正面照看不出来的，转一圈都能看见。
+
+背景会自动抠掉，所以在哪儿拍都无所谓，转起来只有植物本身。不用非得转满一圈，转过三分之一以上就能存下来。
+
+不拖它就是一张普通照片。转盘只是多出来的一层，时间轴还是原来那条时间轴。
 
 【一条时间轴】
 
@@ -115,7 +123,7 @@ Same angle, every single time
 ## Keywords [100 chars, comma separated, no spaces]
 
 ```
-succulent,cactus,caudex,plant,growth,tracker,journal,watering,log,garden,timelapse,houseplant
+succulent,cactus,caudex,plant,growth,tracker,journal,watering,garden,timelapse,houseplant,360,spin
 ```
 
 ## Promotional Text [170]
@@ -143,6 +151,14 @@ Thrive reads your phone's pitch and roll and compares them to the angle saved wi
 
 · Composition grid
 A rule-of-thirds grid plus an optional reference box, so the pot lands in the same spot every time.
+
+TURN IT AROUND
+
+Walk a circle around the plant and Thrive picks 24 evenly spaced frames based on how far you turned. In the detail view, drag left or right and the plant spins — how thick the caudex got, which way the branches lean, the things a single front-on shot can't tell you.
+
+The background is removed automatically, so it doesn't matter where you shoot. Only the plant turns. You don't need a full circle either; a third of the way around is enough to save.
+
+Leave it alone and it's just a photo. The spin is an extra layer — the timeline is still the same timeline.
 
 ONE TIMELINE
 
@@ -199,6 +215,25 @@ Info.plist 里已经写好 `ITSAppUsesNonExemptEncryption = false`，
 发更新时 ASC 会要求填「此版本的新功能 / What's New in This Version」，中英各一份。
 每发一版在这里往上叠一段，最新的放最前面。
 
+### 1.2
+
+简体中文：
+
+```
+新增转盘拍摄。举着手机绕植物走一圈，Thrive 会按转过的角度挑出等间隔的 24 帧，
+详情页里左右一拖就能把植株转起来。背景自动抠掉，转起来只有植物本身。
+不用转满一圈，转过三分之一以上就能存。
+```
+
+English：
+
+```
+New: spin capture. Walk a circle around your plant and Thrive picks 24 evenly
+spaced frames based on how far you turned — then drag left or right in the detail
+view to spin it. The background is removed automatically, so only the plant turns.
+A full circle isn't required; a third of the way around is enough.
+```
+
 ### 1.1.1
 
 简体中文：
@@ -254,6 +289,14 @@ You can now shoot a cover photo straight from the camera when adding a plant, an
 报错里列的尺寸就是它期望的，对照目录名找对应那套。两个尺寸都是原生截的，
 没有缩放（6.9 用 iPhone 17 Pro Max，6.5 用 iPhone 14 Plus）。
 
-**还缺最关键的一张：拍摄页的幽灵叠影。** 那张要真机拍 —— 模拟器里那张
-取景画面是静态图替身，当成真实功能截图放商店不合适。哪天顺手插一下手机，
-给同一株植物拍第二张时截屏（电源键+音量上键），中英文各一张即可。
+**还缺两张，都必须真机拍：**
+
+1. **拍摄页的幽灵叠影** —— 模拟器里那张取景画面是静态图替身，
+   当成真实功能截图放商店不合适。给同一株植物拍第二张时截屏即可。
+2. **转盘（1.2 新增）** —— 两张更好：取景页转盘模式（进度环 + 参考框 + 提示条），
+   和详情页转到中间某一帧的样子。模拟器没有相机也没有陀螺仪，这两张根本截不出来。
+
+截图快捷键是电源键 + 音量上键，中英文各一份（切系统语言重截）。
+
+> 1.2 的商店描述里新增了「转着看 / TURN IT AROUND」一节，
+> 但截图里一张转盘都没有的话，审核和用户都对不上号。补齐再提交。
