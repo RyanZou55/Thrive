@@ -204,18 +204,19 @@ Info.plist 里已经写好 `ITSAppUsesNonExemptEncryption = false`，
 简体中文：
 
 ```
-新增转盘拍摄。举着手机绕植物走一圈，Thrive 会按转过的角度挑出等间隔的 24 帧，
-详情页里左右一拖就能把植株转起来。背景自动抠掉，转起来只有植物本身。
-不用转满一圈，转过三分之一以上就能存。
+现在可以举着手机绕植物走一圈，Thrive 会按你转过的角度挑出等间隔的 24 帧。
+在生长记录里左右一拖，植株就转起来了。
+背景会自动抠掉，转起来只有植物本身，所以在哪儿拍都无所谓。
+不用非得转满一圈，转过三分之一以上就能存下来。
 ```
 
 English：
 
 ```
-New: spin capture. Walk a circle around your plant and Thrive picks 24 evenly
-spaced frames based on how far you turned — then drag left or right in the detail
-view to spin it. The background is removed automatically, so only the plant turns.
-A full circle isn't required; a third of the way around is enough.
+You can now walk a circle around your plant while it records, and Thrive picks 24 evenly spaced frames based on how far you turned.
+Drag left or right on a growth photo and the plant turns.
+The background is removed automatically, so only the plant moves — it doesn't matter where you shoot.
+A full circle isn't required; a third of the way around is enough to save.
 ```
 
 ### 1.1.1
