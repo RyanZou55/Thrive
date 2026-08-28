@@ -49,6 +49,8 @@ struct GrowthEntryDetailView: View {
                         .buttonStyle(.plain)
                     }
 
+                    coverButton
+
                     NoteEditor(text: noteText, placeholder: "这次有什么变化？（可选）")
 
                     metadata
@@ -93,6 +95,25 @@ struct GrowthEntryDetailView: View {
                 Text("照片也会一并删除，无法恢复。")
             }
         }
+    }
+
+    /// 详情页顶上那张大图用的是封面，这里把当前这张顶上去。
+    /// 首页卡片用的也是同一张。
+    private var coverButton: some View {
+        let isCover = plant.coverPhotoFilename == entry.photoFilename
+        return Button {
+            plant.coverPhotoFilename = entry.photoFilename
+            plant.touch()
+            try? modelContext.save()
+        } label: {
+            Label(
+                isCover ? "当前封面" : "设为封面",
+                systemImage: isCover ? "checkmark.circle.fill" : "photo"
+            )
+            .font(.subheadline)
+        }
+        .buttonStyle(.bordered)
+        .disabled(isCover)
     }
 
     private var metadata: some View {

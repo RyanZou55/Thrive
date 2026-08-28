@@ -84,6 +84,19 @@ final class MotionService: ObservableObject {
     /// 取「走到过的最远处」，手抖回退不算数 —— 和挑帧时的口径一致。
     @Published private(set) var yawCoverage: Double = 0
 
+    /// 走太快了。快到这个份上帧间隔不到半秒，运动模糊压不住。
+    @Published private(set) var isTurningTooFast = false
+    /// 手机的俯仰角比刚开录时偏了不少 —— 举手机的高度多半也跟着变了。
+    @Published private(set) var isTiltDrifting = false
+
+    /// 一圈二十几秒是正常节奏（15°/s 上下），到 25°/s 就该提醒了。
+    /// 两个阈值是滞回，免得提示在边界上反复闪。
+    private static let tooFastOn = 25.0
+    private static let tooFastOff = 18.0
+    /// 俯仰漂多少算端不稳。3° 是对齐用的容差，实时提示放松到 5° 才出声。
+    private static let tiltDriftOn = 5.0
+    private static let tiltDriftOff = 3.0
+
     /// 录转盘时的 yaw 轨迹。非 nil 就表示正在录。
     ///
     /// 时刻用 CMDeviceMotion.timestamp（开机以来的秒数），和录制起点记的
@@ -93,6 +106,15 @@ final class MotionService: ObservableObject {
     private var farthestForward: Double = 0
     private var farthestBackward: Double = 0
     private var lastTrackedYaw: Double?
+    private var lastTrackedTime: TimeInterval?
+    /// 30Hz 的瞬时速率跳得厉害，平滑一下再拿去比阈值（时间常数约 0.2 秒）。
+    private var smoothedYawRate: Double = 0
+    /// 开录那一刻的姿态。
+    ///
+    /// 两个用处：录制中算俯仰漂移；录完了给转盘记录当姿态 —— 存下来的主照片是
+    /// 视频开头那一帧，配的姿态就该是开头这个，而不是走完一圈之后的。
+    /// 所以 endYawTrack 之后不清空，留到下次 beginYawTrack 再换。
+    private(set) var poseAtTrackStart: DevicePose?
 
     init() {
         isAvailable = manager.isDeviceMotionAvailable
@@ -155,25 +177,59 @@ final class MotionService: ObservableObject {
         farthestForward = 0
         farthestBackward = 0
         lastTrackedYaw = nil
+        lastTrackedTime = nil
+        smoothedYawRate = 0
+        poseAtTrackStart = currentPose
         yawCoverage = 0
+        isTurningTooFast = false
+        isTiltDrifting = false
     }
 
     /// 取走轨迹并停止记录。
     func endYawTrack() -> [SpinFrameSelector.Sample] {
-        defer { yawTrack = nil }
+        defer {
+            yawTrack = nil
+            isTurningTooFast = false
+            isTiltDrifting = false
+        }
         return yawTrack ?? []
     }
 
     private func appendToYawTrack(time: TimeInterval, yaw: Double) {
         guard yawTrack != nil else { return }
         yawTrack?.append(SpinFrameSelector.Sample(time: time, yaw: yaw))
+        updateTiltDrift()
 
-        defer { lastTrackedYaw = yaw }
+        defer {
+            lastTrackedYaw = yaw
+            lastTrackedTime = time
+        }
         guard let lastTrackedYaw else { return }
+        let previousCoverage = yawCoverage
         cumulativeYaw += DevicePose.normalizedAngle(yaw - lastTrackedYaw)
         farthestForward = max(farthestForward, cumulativeYaw)
         farthestBackward = min(farthestBackward, cumulativeYaw)
         yawCoverage = max(farthestForward, -farthestBackward)
+
+        if let lastTrackedTime, time > lastTrackedTime {
+            updateTurnRate(degrees: yawCoverage - previousCoverage, seconds: time - lastTrackedTime)
+        }
+    }
+
+    /// 速率只算「真的绕出去的那部分」，也就是 yawCoverage 的增量。
+    ///
+    /// 不能用每帧的 |Δyaw|：为了把植物框住，人一路都在左右微调镜头，那些来回摆动
+    /// 一样会被算成绕圈速度，正常步速也能顶过阈值。挑帧看的本来也是这个单调进度，
+    /// 两边口径得一致。
+    private func updateTurnRate(degrees: Double, seconds: TimeInterval) {
+        smoothedYawRate += (degrees / seconds - smoothedYawRate) * 0.15
+        isTurningTooFast = smoothedYawRate > (isTurningTooFast ? Self.tooFastOff : Self.tooFastOn)
+    }
+
+    private func updateTiltDrift() {
+        guard let poseAtTrackStart, let currentPose else { return }
+        let drift = abs(currentPose.difference(from: poseAtTrackStart).pitch)
+        isTiltDrifting = drift > (isTiltDrifting ? Self.tiltDriftOff : Self.tiltDriftOn)
     }
 
     func stop() {

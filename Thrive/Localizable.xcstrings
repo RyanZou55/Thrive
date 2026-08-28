@@ -59,7 +59,14 @@
       }
     },
     "举着手机绕植物走一圈，镜头始终对着它" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Walk a full circle around the plant, keeping it in frame"
+          }
+        }
+      }
     },
     "今天浇过水" : {
       "extractionState" : "manual",
@@ -227,6 +234,16 @@
         }
       }
     },
+    "删掉入手日期？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete the date acquired?"
+          }
+        }
+      }
+    },
     "加入第一株，从今天开始记录它的变化。" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -239,7 +256,14 @@
       }
     },
     "单张" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Single"
+          }
+        }
+      }
     },
     "去「设置 → Thrive → 相机」打开权限，或者直接从相册选一张。" : {
       "extractionState" : "manual",
@@ -286,7 +310,14 @@
       }
     },
     "可以转着看" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can be spun"
+          }
+        }
+      }
     },
     "名字" : {
       "extractionState" : "manual",
@@ -398,8 +429,25 @@
         }
       }
     },
+    "当前封面" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current cover"
+          }
+        }
+      }
+    },
     "左右拖动可以转，点开看大图" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drag left or right to spin · tap for the full-size photo"
+          }
+        }
+      }
     },
     "已存进相册" : {
       "extractionState" : "manual",
@@ -413,7 +461,14 @@
       }
     },
     "已绕过 %.0f° · 让植物一直待在框里" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%.0f° around · keep the plant inside the box"
+          }
+        }
+      }
     },
     "已记录拍摄角度" : {
       "extractionState" : "manual",
@@ -461,6 +516,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tilt back a bit"
+          }
+        }
+      }
+    },
+    "手机保持刚开始的高度和角度" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep the phone at the height and angle you started with"
           }
         }
       }
@@ -575,6 +640,16 @@
         }
       }
     },
+    "时间轴上的「第 N 天」会改从第一张照片算起。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day counts on the timeline will start from the first photo instead."
+          }
+        }
+      }
+    },
     "昨天浇过水" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -609,7 +684,14 @@
       }
     },
     "正在处理这组照片…" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Processing this set…"
+          }
+        }
+      }
     },
     "比如换了新土、浇透了（可选）" : {
       "extractionState" : "manual",
@@ -618,6 +700,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "e.g. repotted, soaked through (optional)"
+          }
+        }
+      }
+    },
+    "没转够一圈的三分之一（至少 105°），这张先单独留下" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Less than a third of a circle (105° minimum) — keeping this one as a single photo"
           }
         }
       }
@@ -689,7 +781,14 @@
       }
     },
     "知道了" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
     },
     "第 %lld 天" : {
       "extractionState" : "manual",
@@ -723,9 +822,6 @@
           }
         }
       }
-    },
-    "绕得还不够一圈的三分之一，转盘至少要转过 105°。再走一遍试试。" : {
-
     },
     "角度对上了，按快门" : {
       "extractionState" : "manual",
@@ -771,11 +867,45 @@
         }
       }
     },
+    "走慢点，太快会拍糊" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slow down — moving too fast blurs the frames"
+          }
+        }
+      }
+    },
+    "设为封面" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set as Cover"
+          }
+        }
+      }
+    },
     "转盘" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spin"
+          }
+        }
+      }
     },
     "转盘已就绪：%d 帧" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spin ready: %d frames"
+          }
+        }
+      }
     },
     "还没有植物" : {
       "extractionState" : "manual",
@@ -832,6 +962,16 @@
         }
       }
     },
+    "这一圈上下晃得比较厉害，介意的话可以重拍" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This lap bobbed up and down quite a bit — reshoot if it bothers you"
+          }
+        }
+      }
+    },
     "这台设备上没有可用的相机" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -865,6 +1005,16 @@
         }
       }
     },
+    "这组帧没凑齐，这张先单独留下" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't assemble a full set — keeping this one as a single photo"
+          }
+        }
+      }
+    },
     "这次有什么变化？（可选）" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -872,6 +1022,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "What changed this time? (optional)"
+          }
+        }
+      }
+    },
+    "这段视频没读出画面，再走一遍试试。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't read a single frame out of that clip. Try walking around again."
           }
         }
       }
@@ -887,11 +1047,15 @@
         }
       }
     },
-    "这段视频没能抽出完整的一组帧，再走一遍试试。" : {
-
-    },
     "这组没存下来" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This set wasn't saved"
+          }
+        }
+      }
     },
     "选择一张照片" : {
       "extractionState" : "manual",

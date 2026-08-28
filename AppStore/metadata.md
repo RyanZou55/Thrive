@@ -199,6 +199,28 @@ Info.plist 里已经写好 `ITSAppUsesNonExemptEncryption = false`，
 发更新时 ASC 会要求填「此版本的新功能 / What's New in This Version」，中英各一份。
 每发一版在这里往上叠一段，最新的放最前面。
 
+### 1.3
+
+简体中文：
+
+```
+详情页顶上的大图现在是封面，在任意一张生长照里都能把它设成封面。
+转盘拍摄稳了很多：手举得高一点低一点、离得近一点远一点，成片会自动对齐，不再上下晃、忽大忽小。
+没绕够一圈也不算白拍，会留下一张普通的生长照。
+录制时会提醒你走太快，或者手机端得不稳。
+补上了转盘相关的英文界面，删除入手日期前也会先问一句。
+```
+
+English：
+
+```
+The big photo on a plant's page is now its cover, and any growth photo can be set as the cover.
+Spin capture is far steadier: differences in how high you held the phone and how close you walked are corrected automatically, so the plant no longer bobs or changes size as it turns.
+A lap that doesn't make it all the way around now leaves you an ordinary growth photo instead of nothing.
+While recording, Thrive tells you when you're walking too fast or letting the phone tilt.
+Spin-related text now follows your system language, and clearing a date acquired asks first.
+```
+
 ### 1.2
 
 简体中文：

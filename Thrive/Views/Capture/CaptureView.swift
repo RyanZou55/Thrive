@@ -39,6 +39,8 @@ struct CaptureView: View {
     @State private var pendingSpin: SpinPipeline.Output?
     @State private var spinStartYaw: Double?
     @State private var spinWarning: String?
+    /// 转盘没成，但这一趟至少留了张单照 —— 在确认页说明一句为什么没有转盘。
+    @State private var spinFallbackNote: String?
     @State private var note = ""
     @State private var pickerItem: PhotosPickerItem?
     @State private var wasAligned = false
@@ -156,6 +158,21 @@ struct CaptureView: View {
         .disabled(camera.isRecording || isProcessingSpin)
     }
 
+    /// 录制中优先说眼下最该纠的那件事：走太快最伤画质，其次是高度飘了。
+    /// 两条都不占才回到进度播报。
+    private var spinHint: String {
+        guard camera.isRecording else {
+            return String(localized: "举着手机绕植物走一圈，镜头始终对着它")
+        }
+        if motion.isTurningTooFast { return String(localized: "走慢点，太快会拍糊") }
+        if motion.isTiltDrifting { return String(localized: "手机保持刚开始的高度和角度") }
+        return String(format: String(localized: "已绕过 %.0f° · 让植物一直待在框里"), motion.yawCoverage)
+    }
+
+    private var spinHintIsWarning: Bool {
+        camera.isRecording && (motion.isTurningTooFast || motion.isTiltDrifting)
+    }
+
     private var processingOverlay: some View {
         ZStack {
             Color.black.opacity(0.6).ignoresSafeArea()
@@ -191,8 +208,9 @@ struct CaptureView: View {
         }
         let frames = SpinFrameSelector.select(from: samples)
         guard !frames.isEmpty else {
-            spinWarning = String(
-                localized: "绕得还不够一圈的三分之一，转盘至少要转过 105°。再走一遍试试。"
+            await keepSinglePhoto(
+                movieAt: movieURL,
+                note: String(localized: "没转够一圈的三分之一（至少 105°），这张先单独留下")
             )
             return
         }
@@ -202,14 +220,33 @@ struct CaptureView: View {
             frames: frames,
             recordingStartUptime: startUptime
         ) else {
-            spinWarning = String(localized: "这段视频没能抽出完整的一组帧，再走一遍试试。")
+            await keepSinglePhoto(
+                movieAt: movieURL,
+                note: String(localized: "这组帧没凑齐，这张先单独留下")
+            )
             return
         }
 
-        poseAtCapture = motion.currentPose
+        // 存的主照片是视频开头那一帧，配的姿态就得是开录那一刻的
+        // —— 走完一圈之后手机的俯仰早偏了，拿终点姿态当基准，下次拍照的姿态条
+        // 会指挥用户对着一个这张照片根本不是那么拍的角度。
+        poseAtCapture = motion.poseAtTrackStart ?? motion.currentPose
         spinStartYaw = samples.first?.yaw
         pendingSpin = output
         capturedImage = output.coverImage
+    }
+
+    /// 转盘没成的兜底：把视频开头那一帧当普通生长照交给确认页。
+    /// 绕着走了二十秒最后什么都没有，比转不成还难受。
+    private func keepSinglePhoto(movieAt url: URL, note: String) async {
+        guard let image = await SpinPipeline.singleFrame(movieAt: url) else {
+            spinWarning = String(localized: "这段视频没读出画面，再走一遍试试。")
+            return
+        }
+        // 同样是开头那一帧，姿态取开录那一刻的。
+        poseAtCapture = motion.poseAtTrackStart ?? motion.currentPose
+        spinFallbackNote = note
+        capturedImage = image
     }
 
 
@@ -330,14 +367,13 @@ struct CaptureView: View {
             }
 
             if isSpinMode {
-                Text(camera.isRecording
-                     ? String(format: String(localized: "已绕过 %.0f° · 让植物一直待在框里"), motion.yawCoverage)
-                     : String(localized: "举着手机绕植物走一圈，镜头始终对着它"))
+                Text(spinHint)
                     .font(.caption)
                     .foregroundStyle(.white)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 8)
-                    .background(.black.opacity(0.45), in: Capsule())
+                    .background(spinHintIsWarning ? .orange.opacity(0.85) : .black.opacity(0.45), in: Capsule())
+                    .animation(.easeInOut(duration: 0.2), value: spinHintIsWarning)
             }
 
             if canUseSpin {
@@ -484,6 +520,21 @@ struct CaptureView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
+
+                        // 对齐能把偏差挪回去，但挪不回视角本身的差别 —— 晃得太狠还是重拍更划算。
+                        if pendingSpin.wobble > SpinPipeline.wobbleWarningThreshold {
+                            Label("这一圈上下晃得比较厉害，介意的话可以重拍", systemImage: "exclamationmark.triangle")
+                                .font(.caption)
+                                .foregroundStyle(.orange)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                    }
+
+                    if let spinFallbackNote {
+                        Label(spinFallbackNote, systemImage: "camera")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
 
                     // 浇水记录不存姿态，就别提它。
@@ -529,6 +580,7 @@ struct CaptureView: View {
         PhotoStore.shared.deleteSpinFrames(pendingSpin?.spinFilenames)
         pendingSpin = nil
         spinStartYaw = nil
+        spinFallbackNote = nil
 
         capturedImage = nil
         camera.capturedImage = nil
