@@ -219,8 +219,11 @@ struct CaptureView: View {
         ZStack {
             switch camera.status {
             case .ready:
-                CameraPreview(session: camera.session)
-                    .ignoresSafeArea()
+                // 取景框多宽多高，只有布局完才知道，报回来给拍照裁图用。
+                CameraPreview(session: camera.session) { [camera] ratio in
+                    camera.previewAspectRatio = ratio
+                }
+                .ignoresSafeArea()
             case .denied:
                 unavailableScreen(
                     title: String(localized: "没有相机权限"),
@@ -459,18 +462,21 @@ struct CaptureView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
-                    ZStack {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFit()
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
                         // 保留叠影，方便在保存前最后确认一次对得齐不齐。
-                        if let referenceEntry, ghostOpacity > 0 {
-                            PhotoImageView(filename: referenceEntry.photoFilename, contentMode: .fit)
-                                .opacity(ghostOpacity * 0.6)
-                                .allowsHitTesting(false)
+                        // 和取景里一样用 fill 裁切：老照片是拍下来没裁过的 4:3，
+                        // 用 fit 的话它会自己缩一圈留边，跟这张对不上。
+                        .overlay {
+                            if let referenceEntry, ghostOpacity > 0 {
+                                GhostOverlay(
+                                    filename: referenceEntry.photoFilename,
+                                    opacity: ghostOpacity * 0.6
+                                )
+                            }
                         }
-                    }
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
 
                     TextField(notePlaceholder, text: $note, axis: .vertical)
                         .lineLimit(2...5)

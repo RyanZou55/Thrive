@@ -22,6 +22,11 @@ final class CameraService: NSObject, ObservableObject {
 
     let session = AVCaptureSession()
 
+    /// 取景框的宽高比（宽 / 高），由 CameraPreview 布局时报上来。
+    /// 取景层是 resizeAspectFill：4:3 的画面被裁到这个比例才填满屏幕，
+    /// 所以拍下来的照片也得按它裁一刀，不然存下来的比取景里看到的多一圈。
+    var previewAspectRatio: CGFloat?
+
     /// 录制中的一段转盘视频，停录后由 CaptureView 取走抽帧。
     @Published private(set) var isRecording = false
     @Published var recordedMovieURL: URL?
@@ -254,11 +259,47 @@ extension CameraService: AVCapturePhotoCaptureDelegate {
         Task { @MainActor [weak self] in
             guard let self else { return }
             self.isCapturing = false
-            if let image {
-                self.capturedImage = image
-            } else if let error {
-                self.logger.error("拍照失败: \(error.localizedDescription, privacy: .public)")
+            guard let image else {
+                if let error {
+                    self.logger.error("拍照失败: \(error.localizedDescription, privacy: .public)")
+                }
+                return
             }
+            guard let ratio = self.previewAspectRatio else {
+                self.capturedImage = image
+                return
+            }
+            // 裁一张 12MP 的图要几十毫秒，放后台做，别卡住快门那一下。
+            self.capturedImage = await Task.detached(priority: .userInitiated) {
+                image.cropped(toAspectRatio: ratio)
+            }.value
+        }
+    }
+}
+
+private extension UIImage {
+    /// 居中裁到目标宽高比（宽 / 高）。比例本来就一样就原样返回。
+    func cropped(toAspectRatio ratio: CGFloat) -> UIImage {
+        guard ratio > 0, size.width > 0, size.height > 0 else { return self }
+
+        let current = size.width / size.height
+        // 差这么点看不出来，不值得为它重绘一遍、白丢一次画质。
+        guard abs(current - ratio) > 0.001 else { return self }
+
+        let cropSize = current > ratio
+            ? CGSize(width: size.height * ratio, height: size.height)
+            : CGSize(width: size.width, height: size.width / ratio)
+
+        let format = UIGraphicsImageRendererFormat.default()
+        format.scale = scale
+        format.opaque = true
+        return UIGraphicsImageRenderer(size: cropSize, format: format).image { _ in
+            // 整张图按偏移画进小画布，画布外的部分自然被切掉。
+            // 用 draw 而不是 CGImage.cropping，是因为 draw 会带上 imageOrientation。
+            draw(at: CGPoint(
+                x: (cropSize.width - size.width) / 2,
+                y: (cropSize.height - size.height) / 2
+            ))
         }
     }
 }
