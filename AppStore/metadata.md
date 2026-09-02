@@ -199,7 +199,26 @@ Info.plist 里已经写好 `ITSAppUsesNonExemptEncryption = false`，
 发更新时 ASC 会要求填「此版本的新功能 / What's New in This Version」，中英各一份。
 每发一版在这里往上叠一段，最新的放最前面。
 
-### 1.2
+### 1.3
+
+简体中文：
+
+```
+拍下来的照片和取景框里看到的一样大了 —— 以前照片会比取景多出一圈。
+转盘拍完的确认页现在能拖着转，存之前把每个角度都看一遍。
+转到哪一帧都可以点「设为封面」，时间线上就用那一帧。
+```
+
+English：
+
+```
+Photos now come out matching what you saw in the viewfinder — they used to be wider than the frame.
+After a spin, you can drag to turn it on the confirm screen before saving.
+Set any frame as the cover, and that's the angle the timeline shows.
+Spin mode is now fully in English.
+```
+
+### 1.2（已上架）
 
 简体中文：
 

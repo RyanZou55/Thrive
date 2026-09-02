@@ -28,6 +28,12 @@
     },
     "%lld/%lld" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld/%2$lld"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "new",
@@ -59,7 +65,14 @@
       }
     },
     "举着手机绕植物走一圈，镜头始终对着它" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Walk a circle around the plant, keeping the camera on it"
+          }
+        }
+      }
     },
     "今天浇过水" : {
       "extractionState" : "manual",
@@ -239,7 +252,14 @@
       }
     },
     "单张" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Single"
+          }
+        }
+      }
     },
     "去「设置 → Thrive → 相机」打开权限，或者直接从相册选一张。" : {
       "extractionState" : "manual",
@@ -286,7 +306,14 @@
       }
     },
     "可以转着看" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drag to turn"
+          }
+        }
+      }
     },
     "名字" : {
       "extractionState" : "manual",
@@ -399,16 +426,44 @@
       }
     },
     "左右拖动可以转" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drag left or right to turn"
+          }
+        }
+      }
     },
     "设为封面" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set as cover"
+          }
+        }
+      }
     },
     "这一帧是封面" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This frame is the cover"
+          }
+        }
+      }
     },
     "左右拖动可以转，点开看大图" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drag left or right to turn, tap for full screen"
+          }
+        }
+      }
     },
     "已存进相册" : {
       "extractionState" : "manual",
@@ -422,7 +477,14 @@
       }
     },
     "已绕过 %.0f° · 让植物一直待在框里" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%.0f° around · keep the plant inside the box"
+          }
+        }
+      }
     },
     "已记录拍摄角度" : {
       "extractionState" : "manual",
@@ -618,7 +680,14 @@
       }
     },
     "正在处理这组照片…" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Processing this set…"
+          }
+        }
+      }
     },
     "比如换了新土、浇透了（可选）" : {
       "extractionState" : "manual",
@@ -698,7 +767,14 @@
       }
     },
     "知道了" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
     },
     "第 %lld 天" : {
       "extractionState" : "manual",
@@ -734,7 +810,14 @@
       }
     },
     "绕得还不够一圈的三分之一，转盘至少要转过 105°。再走一遍试试。" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You didn't get a third of the way around — a spin needs at least 105°. Give it another walk."
+          }
+        }
+      }
     },
     "角度对上了，按快门" : {
       "extractionState" : "manual",
@@ -781,10 +864,24 @@
       }
     },
     "转盘" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spin"
+          }
+        }
+      }
     },
     "转盘已就绪：%d 帧" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spin ready: %d frames"
+          }
+        }
+      }
     },
     "还没有植物" : {
       "extractionState" : "manual",
@@ -897,10 +994,24 @@
       }
     },
     "这段视频没能抽出完整的一组帧，再走一遍试试。" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't pull a full set of frames from that recording. Give it another walk."
+          }
+        }
+      }
     },
     "这组没存下来" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This spin wasn't saved"
+          }
+        }
+      }
     },
     "选择一张照片" : {
       "extractionState" : "manual",
