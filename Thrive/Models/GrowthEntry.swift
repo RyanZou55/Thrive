@@ -25,10 +25,12 @@ final class GrowthEntry {
     var spinFilenames: [String]? = nil
     /// 第 0 帧拍摄时的 yaw，单位：度。帧间隔固定 15°，据此能还原出每帧的角度。
     var spinStartYaw: Double? = nil
-    /// 哪一帧和 photoFilename 是同一个角度 —— 确认页选的封面。
+    /// 哪一帧和 photoFilename 是同一个角度 —— 确认页里选的那一帧。
     /// 详情页从这一帧打开，时间线上的缩略图才不会和它对不上。
     /// 老记录没有这个字段，按第 0 帧算。
-    var spinCoverIndex: Int? = nil
+    ///
+    /// 和 Plant.coverPhotoFilename（植物封面）不是一回事，那个是选哪条记录。
+    var spinPhotoIndex: Int? = nil
 
     // 可选测量值，v1.0 不做输入 UI，先把字段留好
     var heightCm: Double?

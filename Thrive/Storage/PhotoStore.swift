@@ -49,7 +49,7 @@ final class PhotoStore {
     /// 大片纯色在 HEIC 里几乎不占字节，单帧能压到 130KB 上下。
     ///
     /// 转盘帧不进 cache：一组 24 帧会把时间轴的缓存整个挤掉（countLimit 只有 80）。
-    private static let spinMaxDimension: CGFloat = 1280
+    static let spinMaxDimension: CGFloat = 1280
     private static let spinQuality: CGFloat = 0.7
 
     /// 按目标尺寸解码一帧，走 ImageIO 的缩略图路径 ——

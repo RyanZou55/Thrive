@@ -14,6 +14,8 @@ struct PlantDetailView: View {
 
     // 浇水时可以顺手拍一张
     @State private var isChoosingWaterPhoto = false
+    // 入手日期是误触就没了的东西，删之前问一句
+    @State private var isConfirmingDateRemoval = false
 
     var body: some View {
         ScrollView {
@@ -51,9 +53,9 @@ struct PlantDetailView: View {
 
     // MARK: - 封面
 
-    /// 顶部展示的是最新一张生长照，没有就退回封面。
+    /// 顶部展示的是封面，没设过就退回最新一张生长照。
     private var headerPhotoFilename: String? {
-        plant.latestGrowthEntry?.photoFilename ?? plant.coverPhotoFilename
+        plant.coverPhotoFilename ?? plant.latestGrowthEntry?.photoFilename
     }
 
     private var header: some View {
@@ -94,17 +96,34 @@ struct PlantDetailView: View {
                 .labelsHidden()
 
                 Button {
-                    plant.acquiredDate = nil
-                    plant.touch()
+                    isConfirmingDateRemoval = true
                 } label: {
+                    // 图标跟着 .caption 只有十来点，点不中。撑开一块 44×34 的
+                    // 命中区：宽度按 HIG 给够，高度跟 DatePicker 齐平，这行不会变高。
                     Image(systemName: "xmark.circle.fill")
+                        .font(.body)
                         .foregroundStyle(.tertiary)
+                        .frame(width: 44, height: 34)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text("不记录入手日期"))
             }
         }
         .font(.caption)
+        .confirmationDialog(
+            "删掉入手日期？",
+            isPresented: $isConfirmingDateRemoval,
+            titleVisibility: .visible
+        ) {
+            Button("删除", role: .destructive) {
+                plant.acquiredDate = nil
+                plant.touch()
+            }
+            Button("取消", role: .cancel) {}
+        } message: {
+            Text("时间轴上的「第 N 天」会改从第一张照片算起。")
+        }
     }
 
     /// acquiredDate 是可选的，DatePicker 要非可选，这里桥一下。

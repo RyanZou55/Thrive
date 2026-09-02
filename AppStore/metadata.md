@@ -206,7 +206,7 @@ Info.plist 里已经写好 `ITSAppUsesNonExemptEncryption = false`，
 ```
 拍下来的照片和取景框里看到的一样大了 —— 以前照片会比取景多出一圈。
 转盘拍完的确认页现在能拖着转，存之前把每个角度都看一遍。
-转到哪一帧都可以点「设为封面」，时间线上就用那一帧。
+转到哪一帧都可以指定成这条记录的主照片。
 ```
 
 English：
@@ -214,17 +214,30 @@ English：
 ```
 Photos now come out matching what you saw in the viewfinder — they used to be wider than the frame.
 After a spin, you can drag to turn it on the confirm screen before saving.
-Set any frame as the cover, and that's the angle the timeline shows.
-Spin mode is now fully in English.
+Pick any frame as the photo for that entry, and that's the angle the timeline shows.
 ```
 
-### 1.3 / 1.3.1（已上架，文案没记到这里）
+### 1.3（已上架，build 5）
 
-1.3 是 8/28 上架的，**build 5**；更新说明没写回这里，仓库里也没有对应的提交
-（`origin/main` 停在 1.2 那一批）。1.3.1 如果也发过，同样没记录。
-以后补记的话填在这一段。
+简体中文：
 
-> 所以 1.3.2 的 build 从 **7** 起，跳开 1.3 的 5 和 1.3.1 可能占掉的 6。
+```
+详情页顶上的大图现在是封面，在任意一张生长照里都能把它设成封面。
+转盘拍摄稳了很多：手举得高一点低一点、离得近一点远一点，成片会自动对齐，不再上下晃、忽大忽小。
+没绕够一圈也不算白拍，会留下一张普通的生长照。
+录制时会提醒你走太快，或者手机端得不稳。
+补上了转盘相关的英文界面，删除入手日期前也会先问一句。
+```
+
+English：
+
+```
+The big photo on a plant's page is now its cover, and any growth photo can be set as the cover.
+Spin capture is far steadier: differences in how high you held the phone and how close you walked are corrected automatically, so the plant no longer bobs or changes size as it turns.
+A lap that doesn't make it all the way around now leaves you an ordinary growth photo instead of nothing.
+While recording, Thrive tells you when you're walking too fast or letting the phone tilt.
+Spin-related text now follows your system language, and clearing a date acquired asks first.
+```
 
 ### 1.2（已上架）
 

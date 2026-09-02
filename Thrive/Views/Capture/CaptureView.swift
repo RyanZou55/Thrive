@@ -41,11 +41,14 @@ struct CaptureView: View {
     @State private var spinStartYaw: Double?
     /// 确认页里转盘停在第几帧。
     @State private var spinIndex = 0
-    /// 选中当封面的那一帧。默认第 0 帧，也就是绕圈的起点。
-    @State private var spinCoverIndex = 0
-    /// 保存要回视频里重抽封面，是个异步过程，期间别让人再点一次。
+    /// 选中当这条记录主照片的那一帧。默认第 0 帧，也就是绕圈的起点。
+    /// 注意和「封面」不是一回事 —— 封面是植物详情页顶上那张，在生长记录详情页里设。
+    @State private var spinPhotoIndex = 0
+    /// 保存要回视频里重抽主照片，是个异步过程，期间别让人再点一次。
     @State private var isSaving = false
     @State private var spinWarning: String?
+    /// 转盘没成，但这一趟至少留了张单照 —— 在确认页说明一句为什么没有转盘。
+    @State private var spinFallbackNote: String?
     @State private var note = ""
     @State private var pickerItem: PhotosPickerItem?
     @State private var wasAligned = false
@@ -165,6 +168,21 @@ struct CaptureView: View {
         .disabled(camera.isRecording || isProcessingSpin)
     }
 
+    /// 录制中优先说眼下最该纠的那件事：走太快最伤画质，其次是高度飘了。
+    /// 两条都不占才回到进度播报。
+    private var spinHint: String {
+        guard camera.isRecording else {
+            return String(localized: "举着手机绕植物走一圈，镜头始终对着它")
+        }
+        if motion.isTurningTooFast { return String(localized: "走慢点，太快会拍糊") }
+        if motion.isTiltDrifting { return String(localized: "手机保持刚开始的高度和角度") }
+        return String(format: String(localized: "已绕过 %.0f° · 让植物一直待在框里"), motion.yawCoverage)
+    }
+
+    private var spinHintIsWarning: Bool {
+        camera.isRecording && (motion.isTurningTooFast || motion.isTiltDrifting)
+    }
+
     private var processingOverlay: some View {
         ZStack {
             Color.black.opacity(0.6).ignoresSafeArea()
@@ -183,7 +201,7 @@ struct CaptureView: View {
         else { return }
 
         isProcessingSpin = true
-        // 抽出帧来的话视频先留着 —— 确认页换封面要回去按选中的那一帧重抽一张。
+        // 抽出帧来的话视频先留着 —— 确认页换主照片要回去按选中的那一帧重抽一张。
         // 剩下的路径都是失败，直接删掉。
         var keepsMovie = false
         defer {
@@ -203,8 +221,9 @@ struct CaptureView: View {
         }
         let frames = SpinFrameSelector.select(from: samples)
         guard !frames.isEmpty else {
-            spinWarning = String(
-                localized: "绕得还不够一圈的三分之一，转盘至少要转过 105°。再走一遍试试。"
+            await keepSinglePhoto(
+                movieAt: movieURL,
+                note: String(localized: "没转够一圈的三分之一（至少 105°），这张先单独留下")
             )
             return
         }
@@ -214,17 +233,36 @@ struct CaptureView: View {
             frames: frames,
             recordingStartUptime: startUptime
         ) else {
-            spinWarning = String(localized: "这段视频没能抽出完整的一组帧，再走一遍试试。")
+            await keepSinglePhoto(
+                movieAt: movieURL,
+                note: String(localized: "这组帧没凑齐，这张先单独留下")
+            )
             return
         }
 
         keepsMovie = true
-        poseAtCapture = motion.currentPose
+        // 存的主照片是视频开头那一帧，配的姿态就得是开录那一刻的
+        // —— 走完一圈之后手机的俯仰早偏了，拿终点姿态当基准，下次拍照的姿态条
+        // 会指挥用户对着一个这张照片根本不是那么拍的角度。
+        poseAtCapture = motion.poseAtTrackStart ?? motion.currentPose
         spinStartYaw = samples.first?.yaw
         pendingSpin = output
         spinIndex = 0
-        spinCoverIndex = 0
+        spinPhotoIndex = 0
         capturedImage = output.coverImage
+    }
+
+    /// 转盘没成的兜底：把视频开头那一帧当普通生长照交给确认页。
+    /// 绕着走了二十秒最后什么都没有，比转不成还难受。
+    private func keepSinglePhoto(movieAt url: URL, note: String) async {
+        guard let image = await SpinPipeline.singleFrame(movieAt: url) else {
+            spinWarning = String(localized: "这段视频没读出画面，再走一遍试试。")
+            return
+        }
+        // 同样是开头那一帧，姿态取开录那一刻的。
+        poseAtCapture = motion.poseAtTrackStart ?? motion.currentPose
+        spinFallbackNote = note
+        capturedImage = image
     }
 
 
@@ -348,14 +386,13 @@ struct CaptureView: View {
             }
 
             if isSpinMode {
-                Text(camera.isRecording
-                     ? String(format: String(localized: "已绕过 %.0f° · 让植物一直待在框里"), motion.yawCoverage)
-                     : String(localized: "举着手机绕植物走一圈，镜头始终对着它"))
+                Text(spinHint)
                     .font(.caption)
                     .foregroundStyle(.white)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 8)
-                    .background(.black.opacity(0.45), in: Capsule())
+                    .background(spinHintIsWarning ? .orange.opacity(0.85) : .black.opacity(0.45), in: Capsule())
+                    .animation(.easeInOut(duration: 0.2), value: spinHintIsWarning)
             }
 
             if canUseSpin {
@@ -479,7 +516,7 @@ struct CaptureView: View {
                 VStack(spacing: 16) {
                     if let pendingSpin {
                         // 帧这会儿已经落盘了，确认页就用详情页那个播放器 ——
-                        // 存之前先拖着转一圈，顺便挑一帧当封面。
+                        // 存之前先拖着转一圈，顺便挑一帧当这条记录的主照片。
                         // 不压叠影：转盘帧是抠过图的，底下垫一张完整的老照片会糊成一片，
                         // 而且转开之后叠影也没有参照意义了。
                         SpinPlayerView(filenames: pendingSpin.spinFilenames, index: $spinIndex) {}
@@ -492,18 +529,18 @@ struct CaptureView: View {
                             Spacer()
 
                             Button {
-                                spinCoverIndex = spinIndex
+                                spinPhotoIndex = spinIndex
                             } label: {
-                                if spinIndex == spinCoverIndex {
-                                    Label("这一帧是封面", systemImage: "checkmark.circle.fill")
+                                if spinIndex == spinPhotoIndex {
+                                    Label("这一帧是主照片", systemImage: "checkmark.circle.fill")
                                         .font(.caption)
                                 } else {
-                                    Label("设为封面", systemImage: "photo")
+                                    Label("设为主照片", systemImage: "photo")
                                         .font(.caption)
                                 }
                             }
                             .buttonStyle(.borderless)
-                            .disabled(spinIndex == spinCoverIndex)
+                            .disabled(spinIndex == spinPhotoIndex)
                         }
                     } else {
                         Image(uiImage: image)
@@ -535,6 +572,21 @@ struct CaptureView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
+
+                        // 对齐能把偏差挪回去，但挪不回视角本身的差别 —— 晃得太狠还是重拍更划算。
+                        if pendingSpin.wobble > SpinPipeline.wobbleWarningThreshold {
+                            Label("这一圈上下晃得比较厉害，介意的话可以重拍", systemImage: "exclamationmark.triangle")
+                                .font(.caption)
+                                .foregroundStyle(.orange)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                    }
+
+                    if let spinFallbackNote {
+                        Label(spinFallbackNote, systemImage: "camera")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
 
                     // 浇水记录不存姿态，就别提它。
@@ -582,12 +634,13 @@ struct CaptureView: View {
     private func discard() {
         // 流水线已经把帧写到磁盘上了，这里不删就成了孤儿文件。
         PhotoStore.shared.deleteSpinFrames(pendingSpin?.spinFilenames)
-        // 留着换封面用的那段临时视频，这会儿也没用了。
+        // 留着换主照片用的那段临时视频，这会儿也没用了。
         camera.discardRecordedMovie()
         pendingSpin = nil
         spinStartYaw = nil
         spinIndex = 0
-        spinCoverIndex = 0
+        spinPhotoIndex = 0
+        spinFallbackNote = nil
 
         capturedImage = nil
         camera.capturedImage = nil
@@ -596,31 +649,32 @@ struct CaptureView: View {
         note = ""
     }
 
-    /// 选中哪一帧当封面就回视频里按那一帧重抽一张 2048 大图。
+    /// 选中哪一帧当主照片，就回视频里按那一帧重抽一张 2048 大图 ——
+    /// 落盘的转盘帧只有 1280、抠过图又对齐过，顶不上主照片。
     /// 抽不出来（视频没了、时刻越界）就退回第 0 帧那张，索引也跟着退回去 ——
-    /// 存了个对不上的索引，详情页会从一个不是封面的角度打开。
-    private func pickedCover(fallback: UIImage) async -> (UIImage, Int) {
-        guard let pendingSpin, spinCoverIndex > 0,
-              spinCoverIndex < pendingSpin.frameTimes.count,
+    /// 存了个对不上的索引，详情页会从一个不是主照片的角度打开。
+    private func pickedPhoto(fallback: UIImage) async -> (UIImage, Int) {
+        guard let pendingSpin, spinPhotoIndex > 0,
+              spinPhotoIndex < pendingSpin.frameTimes.count,
               let movieURL = camera.recordedMovieURL,
-              let cover = await SpinPipeline.coverImage(
+              let picked = await SpinPipeline.frameImage(
                   movieAt: movieURL,
-                  at: pendingSpin.frameTimes[spinCoverIndex]
+                  at: pendingSpin.frameTimes[spinPhotoIndex]
               )
         else { return (fallback, 0) }
 
-        return (cover, spinCoverIndex)
+        return (picked, spinPhotoIndex)
     }
 
     private func save(image: UIImage) async {
         isSaving = true
         defer { isSaving = false }
 
-        let (coverImage, coverIndex) = await pickedCover(fallback: image)
-        // 封面定下来了，临时视频没别的用处了。
+        let (photo, photoIndex) = await pickedPhoto(fallback: image)
+        // 主照片定下来了，临时视频没别的用处了。
         camera.discardRecordedMovie()
 
-        guard let filename = PhotoStore.shared.save(coverImage) else { return }
+        guard let filename = PhotoStore.shared.save(photo) else { return }
 
         let trimmedNote = note.trimmingCharacters(in: .whitespacesAndNewlines)
         let savedNote = trimmedNote.isEmpty ? nil : trimmedNote
@@ -635,7 +689,7 @@ struct CaptureView: View {
             )
             entry.spinFilenames = pendingSpin?.spinFilenames
             entry.spinStartYaw = spinStartYaw
-            entry.spinCoverIndex = pendingSpin == nil ? nil : coverIndex
+            entry.spinPhotoIndex = pendingSpin == nil ? nil : photoIndex
             entry.plant = plant
             modelContext.insert(entry)
 

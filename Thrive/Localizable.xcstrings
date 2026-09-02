@@ -28,12 +28,6 @@
     },
     "%lld/%lld" : {
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld/%2$lld"
-          }
-        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "new",
@@ -69,7 +63,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Walk a circle around the plant, keeping the camera on it"
+            "value" : "Walk a full circle around the plant, keeping it in frame"
           }
         }
       }
@@ -240,6 +234,16 @@
         }
       }
     },
+    "删掉入手日期？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete the date acquired?"
+          }
+        }
+      }
+    },
     "加入第一株，从今天开始记录它的变化。" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -310,7 +314,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Drag to turn"
+            "value" : "Can be spun"
           }
         }
       }
@@ -425,32 +429,22 @@
         }
       }
     },
+    "当前封面" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current cover"
+          }
+        }
+      }
+    },
     "左右拖动可以转" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Drag left or right to turn"
-          }
-        }
-      }
-    },
-    "设为封面" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Set as cover"
-          }
-        }
-      }
-    },
-    "这一帧是封面" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This frame is the cover"
+            "value" : "Drag left or right to spin"
           }
         }
       }
@@ -460,7 +454,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Drag left or right to turn, tap for full screen"
+            "value" : "Drag left or right to spin · tap for the full-size photo"
           }
         }
       }
@@ -532,6 +526,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tilt back a bit"
+          }
+        }
+      }
+    },
+    "手机保持刚开始的高度和角度" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep the phone at the height and angle you started with"
           }
         }
       }
@@ -646,6 +650,16 @@
         }
       }
     },
+    "时间轴上的「第 N 天」会改从第一张照片算起。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day counts on the timeline will start from the first photo instead."
+          }
+        }
+      }
+    },
     "昨天浇过水" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -696,6 +710,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "e.g. repotted, soaked through (optional)"
+          }
+        }
+      }
+    },
+    "没转够一圈的三分之一（至少 105°），这张先单独留下" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Less than a third of a circle (105° minimum) — keeping this one as a single photo"
           }
         }
       }
@@ -809,16 +833,6 @@
         }
       }
     },
-    "绕得还不够一圈的三分之一，转盘至少要转过 105°。再走一遍试试。" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You didn't get a third of the way around — a spin needs at least 105°. Give it another walk."
-          }
-        }
-      }
-    },
     "角度对上了，按快门" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -859,6 +873,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Record this watering"
+          }
+        }
+      }
+    },
+    "走慢点，太快会拍糊" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slow down — moving too fast blurs the frames"
+          }
+        }
+      }
+    },
+    "设为主照片" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use this frame"
+          }
+        }
+      }
+    },
+    "设为封面" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set as Cover"
           }
         }
       }
@@ -938,6 +982,26 @@
         }
       }
     },
+    "这一帧是主照片" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Using this frame"
+          }
+        }
+      }
+    },
+    "这一圈上下晃得比较厉害，介意的话可以重拍" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This lap bobbed up and down quite a bit — reshoot if it bothers you"
+          }
+        }
+      }
+    },
     "这台设备上没有可用的相机" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -971,6 +1035,16 @@
         }
       }
     },
+    "这组帧没凑齐，这张先单独留下" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't assemble a full set — keeping this one as a single photo"
+          }
+        }
+      }
+    },
     "这次有什么变化？（可选）" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -978,6 +1052,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "What changed this time? (optional)"
+          }
+        }
+      }
+    },
+    "这段视频没读出画面，再走一遍试试。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't read a single frame out of that clip. Try walking around again."
           }
         }
       }
@@ -993,22 +1077,12 @@
         }
       }
     },
-    "这段视频没能抽出完整的一组帧，再走一遍试试。" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Couldn't pull a full set of frames from that recording. Give it another walk."
-          }
-        }
-      }
-    },
     "这组没存下来" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This spin wasn't saved"
+            "value" : "This set wasn't saved"
           }
         }
       }

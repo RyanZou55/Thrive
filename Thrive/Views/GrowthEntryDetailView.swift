@@ -23,7 +23,7 @@ struct GrowthEntryDetailView: View {
 
     @State private var isConfirmingDelete = false
     @State private var viewedPhoto: ViewedPhoto?
-    /// 转盘停在第几帧。打开时对到封面那一帧，和这条记录的主照片同一个角度。
+    /// 转盘停在第几帧。打开时对到主照片那一帧，和列表里看到的缩略图同一个角度。
     @State private var spinIndex = 0
     @StateObject private var saver = PhotoSaver()
 
@@ -35,7 +35,7 @@ struct GrowthEntryDetailView: View {
                         SpinPlayerView(filenames: spinFilenames, index: $spinIndex) {
                             viewedPhoto = ViewedPhoto(filename: entry.photoFilename)
                         }
-                        .task { spinIndex = entry.spinCoverIndex ?? 0 }
+                        .task { spinIndex = entry.spinPhotoIndex ?? 0 }
 
                         Text("左右拖动可以转，点开看大图")
                             .font(.caption2)
@@ -51,6 +51,8 @@ struct GrowthEntryDetailView: View {
                         }
                         .buttonStyle(.plain)
                     }
+
+                    coverButton
 
                     NoteEditor(text: noteText, placeholder: "这次有什么变化？（可选）")
 
@@ -96,6 +98,25 @@ struct GrowthEntryDetailView: View {
                 Text("照片也会一并删除，无法恢复。")
             }
         }
+    }
+
+    /// 详情页顶上那张大图用的是封面，这里把当前这张顶上去。
+    /// 首页卡片用的也是同一张。
+    private var coverButton: some View {
+        let isCover = plant.coverPhotoFilename == entry.photoFilename
+        return Button {
+            plant.coverPhotoFilename = entry.photoFilename
+            plant.touch()
+            try? modelContext.save()
+        } label: {
+            Label(
+                isCover ? "当前封面" : "设为封面",
+                systemImage: isCover ? "checkmark.circle.fill" : "photo"
+            )
+            .font(.subheadline)
+        }
+        .buttonStyle(.bordered)
+        .disabled(isCover)
     }
 
     private var metadata: some View {
