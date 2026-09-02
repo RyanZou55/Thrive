@@ -462,21 +462,34 @@ struct CaptureView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFit()
-                        // 保留叠影，方便在保存前最后确认一次对得齐不齐。
-                        // 和取景里一样用 fill 裁切：老照片是拍下来没裁过的 4:3，
-                        // 用 fit 的话它会自己缩一圈留边，跟这张对不上。
-                        .overlay {
-                            if let referenceEntry, ghostOpacity > 0 {
-                                GhostOverlay(
-                                    filename: referenceEntry.photoFilename,
-                                    opacity: ghostOpacity * 0.6
-                                )
+                    if let pendingSpin {
+                        // 帧这会儿已经落盘了，确认页就用详情页那个播放器 ——
+                        // 存之前先拖着转一圈，看清楚了再决定留不留。
+                        // 不压叠影：转盘帧是抠过图的，底下垫一张完整的老照片会糊成一片，
+                        // 而且转开之后叠影也没有参照意义了。
+                        SpinPlayerView(filenames: pendingSpin.spinFilenames) {}
+
+                        Text("左右拖动可以转")
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    } else {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFit()
+                            // 保留叠影，方便在保存前最后确认一次对得齐不齐。
+                            // 和取景里一样用 fill 裁切：老照片是拍下来没裁过的 4:3，
+                            // 用 fit 的话它会自己缩一圈留边，跟这张对不上。
+                            .overlay {
+                                if let referenceEntry, ghostOpacity > 0 {
+                                    GhostOverlay(
+                                        filename: referenceEntry.photoFilename,
+                                        opacity: ghostOpacity * 0.6
+                                    )
+                                }
                             }
-                        }
-                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    }
 
                     TextField(notePlaceholder, text: $note, axis: .vertical)
                         .lineLimit(2...5)
