@@ -10,9 +10,20 @@
 	<array/>
 	<key>NSPrivacyCollectedDataTypes</key>
 	<array/>
-	<!-- 没有用到任何需要声明理由的 API（UserDefaults / 文件时间戳 /
-	     磁盘空间 / 系统启动时间 / 当前键盘），所以这里是空的。 -->
+	<!-- UserDefaults / 文件时间戳 / 磁盘空间 / 当前键盘都没用到。
+	     用到的只有系统启动时间：转盘录制拿 systemUptime 给视频和陀螺仪采样
+	     打同一条时间轴，靠它算出每一帧对应视频里的第几秒。
+	     35F9.1 = 测量 App 内两个事件之间经过的时间，正是这个用法。 -->
 	<key>NSPrivacyAccessedAPITypes</key>
-	<array/>
+	<array>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategorySystemBootTime</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>35F9.1</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>
