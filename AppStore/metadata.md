@@ -199,7 +199,7 @@ Info.plist 里已经写好 `ITSAppUsesNonExemptEncryption = false`，
 发更新时 ASC 会要求填「此版本的新功能 / What's New in This Version」，中英各一份。
 每发一版在这里往上叠一段，最新的放最前面。
 
-### 1.3
+### 1.3.2
 
 简体中文：
 
@@ -217,6 +217,12 @@ After a spin, you can drag to turn it on the confirm screen before saving.
 Set any frame as the cover, and that's the angle the timeline shows.
 Spin mode is now fully in English.
 ```
+
+### 1.3 / 1.3.1（已上架，文案没记到这里）
+
+1.3 是 8/28 上架的，更新说明没写回这里，仓库里也没有对应的提交
+（`origin/main` 停在 1.2 那一批）。1.3.1 如果也发过，同样没记录。
+以后补记的话填在这一段。
 
 ### 1.2（已上架）
 
