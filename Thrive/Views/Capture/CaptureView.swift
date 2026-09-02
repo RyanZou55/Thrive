@@ -1,3 +1,4 @@
+import AVFoundation
 import PhotosUI
 import SwiftData
 import SwiftUI
@@ -38,6 +39,12 @@ struct CaptureView: View {
     /// 流水线已经把帧写到磁盘上了，取消时得把它们删掉。
     @State private var pendingSpin: SpinPipeline.Output?
     @State private var spinStartYaw: Double?
+    /// 确认页里转盘停在第几帧。
+    @State private var spinIndex = 0
+    /// 选中当封面的那一帧。默认第 0 帧，也就是绕圈的起点。
+    @State private var spinCoverIndex = 0
+    /// 保存要回视频里重抽封面，是个异步过程，期间别让人再点一次。
+    @State private var isSaving = false
     @State private var spinWarning: String?
     @State private var note = ""
     @State private var pickerItem: PhotosPickerItem?
@@ -90,6 +97,8 @@ struct CaptureView: View {
         .onDisappear {
             camera.stop()
             motion.stop()
+            // 确认页停在半路就退出的话，留着的那段临时视频没人管了。
+            camera.discardRecordedMovie()
         }
         .onChange(of: camera.capturedImage) { _, newValue in
             guard let newValue else { return }
@@ -174,9 +183,12 @@ struct CaptureView: View {
         else { return }
 
         isProcessingSpin = true
+        // 抽出帧来的话视频先留着 —— 确认页换封面要回去按选中的那一帧重抽一张。
+        // 剩下的路径都是失败，直接删掉。
+        var keepsMovie = false
         defer {
             isProcessingSpin = false
-            camera.discardRecordedMovie()
+            if !keepsMovie { camera.discardRecordedMovie() }
         }
 
         // 只留录制窗口之内的采样。
@@ -206,9 +218,12 @@ struct CaptureView: View {
             return
         }
 
+        keepsMovie = true
         poseAtCapture = motion.currentPose
         spinStartYaw = samples.first?.yaw
         pendingSpin = output
+        spinIndex = 0
+        spinCoverIndex = 0
         capturedImage = output.coverImage
     }
 
@@ -464,15 +479,32 @@ struct CaptureView: View {
                 VStack(spacing: 16) {
                     if let pendingSpin {
                         // 帧这会儿已经落盘了，确认页就用详情页那个播放器 ——
-                        // 存之前先拖着转一圈，看清楚了再决定留不留。
+                        // 存之前先拖着转一圈，顺便挑一帧当封面。
                         // 不压叠影：转盘帧是抠过图的，底下垫一张完整的老照片会糊成一片，
                         // 而且转开之后叠影也没有参照意义了。
-                        SpinPlayerView(filenames: pendingSpin.spinFilenames) {}
+                        SpinPlayerView(filenames: pendingSpin.spinFilenames, index: $spinIndex) {}
 
-                        Text("左右拖动可以转")
-                            .font(.caption2)
-                            .foregroundStyle(.tertiary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                        HStack {
+                            Text("左右拖动可以转")
+                                .font(.caption2)
+                                .foregroundStyle(.tertiary)
+
+                            Spacer()
+
+                            Button {
+                                spinCoverIndex = spinIndex
+                            } label: {
+                                if spinIndex == spinCoverIndex {
+                                    Label("这一帧是封面", systemImage: "checkmark.circle.fill")
+                                        .font(.caption)
+                                } else {
+                                    Label("设为封面", systemImage: "photo")
+                                        .font(.caption)
+                                }
+                            }
+                            .buttonStyle(.borderless)
+                            .disabled(spinIndex == spinCoverIndex)
+                        }
                     } else {
                         Image(uiImage: image)
                             .resizable()
@@ -523,9 +555,13 @@ struct CaptureView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("重拍") { discard() }
+                        .disabled(isSaving)
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("保存") { save(image: image) }
+                    Button("保存") {
+                        Task { await save(image: image) }
+                    }
+                    .disabled(isSaving)
                 }
             }
         }
@@ -546,8 +582,12 @@ struct CaptureView: View {
     private func discard() {
         // 流水线已经把帧写到磁盘上了，这里不删就成了孤儿文件。
         PhotoStore.shared.deleteSpinFrames(pendingSpin?.spinFilenames)
+        // 留着换封面用的那段临时视频，这会儿也没用了。
+        camera.discardRecordedMovie()
         pendingSpin = nil
         spinStartYaw = nil
+        spinIndex = 0
+        spinCoverIndex = 0
 
         capturedImage = nil
         camera.capturedImage = nil
@@ -556,8 +596,31 @@ struct CaptureView: View {
         note = ""
     }
 
-    private func save(image: UIImage) {
-        guard let filename = PhotoStore.shared.save(image) else { return }
+    /// 选中哪一帧当封面就回视频里按那一帧重抽一张 2048 大图。
+    /// 抽不出来（视频没了、时刻越界）就退回第 0 帧那张，索引也跟着退回去 ——
+    /// 存了个对不上的索引，详情页会从一个不是封面的角度打开。
+    private func pickedCover(fallback: UIImage) async -> (UIImage, Int) {
+        guard let pendingSpin, spinCoverIndex > 0,
+              spinCoverIndex < pendingSpin.frameTimes.count,
+              let movieURL = camera.recordedMovieURL,
+              let cover = await SpinPipeline.coverImage(
+                  movieAt: movieURL,
+                  at: pendingSpin.frameTimes[spinCoverIndex]
+              )
+        else { return (fallback, 0) }
+
+        return (cover, spinCoverIndex)
+    }
+
+    private func save(image: UIImage) async {
+        isSaving = true
+        defer { isSaving = false }
+
+        let (coverImage, coverIndex) = await pickedCover(fallback: image)
+        // 封面定下来了，临时视频没别的用处了。
+        camera.discardRecordedMovie()
+
+        guard let filename = PhotoStore.shared.save(coverImage) else { return }
 
         let trimmedNote = note.trimmingCharacters(in: .whitespacesAndNewlines)
         let savedNote = trimmedNote.isEmpty ? nil : trimmedNote
@@ -572,6 +635,7 @@ struct CaptureView: View {
             )
             entry.spinFilenames = pendingSpin?.spinFilenames
             entry.spinStartYaw = spinStartYaw
+            entry.spinCoverIndex = pendingSpin == nil ? nil : coverIndex
             entry.plant = plant
             modelContext.insert(entry)
 

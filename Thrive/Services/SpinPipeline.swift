@@ -13,8 +13,11 @@ enum SpinPipeline {
     struct Output {
         /// 转盘帧文件名，顺序即角度顺序。
         var spinFilenames: [String]
-        /// 第 0 帧的大图，存成记录的主照片。
+        /// 当封面的那一帧的大图，存成记录的主照片。默认是第 0 帧。
         var coverImage: UIImage
+        /// 每一帧在视频里的时刻，和 spinFilenames 一一对应。
+        /// 确认页换封面要靠它回视频里重抽 —— 转盘帧只有 1280 又抠过图，当不了封面。
+        var frameTimes: [CMTime]
     }
 
     private enum Attempt {
@@ -69,7 +72,7 @@ enum SpinPipeline {
             PhotoStore.shared.deleteSpinFrames(filenames)
             return nil
         }
-        return Output(spinFilenames: filenames, coverImage: cover)
+        return Output(spinFilenames: filenames, coverImage: cover, frameTimes: times)
     }
 
     /// 抽一遍并逐帧落盘。中途出问题就把已经写下去的删干净，不留半组。
@@ -127,6 +130,11 @@ enum SpinPipeline {
             return .failed
         }
         return .saved(filenames)
+    }
+
+    /// 换封面时按选中的那一帧重抽一张。只在临时视频还没删的时候叫得动。
+    static func coverImage(movieAt url: URL, at time: CMTime) async -> UIImage? {
+        await coverImage(asset: AVURLAsset(url: url), at: time)
     }
 
     /// 主照片单独抽一次，尺寸放到 2048 —— 它要当封面和下次拍照的叠影底图，

@@ -23,6 +23,8 @@ struct GrowthEntryDetailView: View {
 
     @State private var isConfirmingDelete = false
     @State private var viewedPhoto: ViewedPhoto?
+    /// 转盘停在第几帧。打开时对到封面那一帧，和这条记录的主照片同一个角度。
+    @State private var spinIndex = 0
     @StateObject private var saver = PhotoSaver()
 
     var body: some View {
@@ -30,9 +32,10 @@ struct GrowthEntryDetailView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     if entry.hasSpin, let spinFilenames = entry.spinFilenames {
-                        SpinPlayerView(filenames: spinFilenames) {
+                        SpinPlayerView(filenames: spinFilenames, index: $spinIndex) {
                             viewedPhoto = ViewedPhoto(filename: entry.photoFilename)
                         }
+                        .task { spinIndex = entry.spinCoverIndex ?? 0 }
 
                         Text("左右拖动可以转，点开看大图")
                             .font(.caption2)
