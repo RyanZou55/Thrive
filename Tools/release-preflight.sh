@@ -9,9 +9,6 @@
 
 set -uo pipefail
 
-EXPECT_VERSION="1.3.2"
-EXPECT_BUILD="7"
-
 cd "$(dirname "$0")/.." || exit 1
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || { echo "❌ 这不是个 git 仓库"; exit 1; }
 cd "$ROOT" || exit 1
@@ -42,16 +39,27 @@ echo "   现在是：$(git log --oneline -1)"
 echo
 
 PBX="Thrive.xcodeproj/project.pbxproj"
-VERSION="$(grep -m1 'MARKETING_VERSION' "$PBX" | sed 's/.*= *//;s/;//')"
-BUILD="$(grep -m1 'CURRENT_PROJECT_VERSION' "$PBX" | sed 's/.*= *//;s/;//')"
-echo "项目文件里的版本号：$VERSION ($BUILD)"
+read_setting() { grep -m1 "$1" "$2" | sed 's/.*= *//;s/;//'; }
 
-if [ "$VERSION" != "$EXPECT_VERSION" ] || [ "$BUILD" != "$EXPECT_BUILD" ]; then
-    echo "❌ 期望 $EXPECT_VERSION ($EXPECT_BUILD)，实际 $VERSION ($BUILD)"
-    echo "   如果这个目录不是 Xcode 打开的那个，去 Xcode 里右键项目 → Show in Finder 对一下。"
+VERSION="$(read_setting MARKETING_VERSION "$PBX")"
+BUILD="$(read_setting CURRENT_PROJECT_VERSION "$PBX")"
+
+# 和远端比，而不是写死一个数 —— 下次发版不用回来改脚本。
+REMOTE_PBX="$(mktemp)"
+git show "origin/main:$PBX" > "$REMOTE_PBX" 2>/dev/null
+REMOTE_VERSION="$(read_setting MARKETING_VERSION "$REMOTE_PBX")"
+REMOTE_BUILD="$(read_setting CURRENT_PROJECT_VERSION "$REMOTE_PBX")"
+rm -f "$REMOTE_PBX"
+
+echo "这个目录里的版本号：$VERSION ($BUILD)"
+echo "origin/main 上的：  $REMOTE_VERSION ($REMOTE_BUILD)"
+
+if [ "$VERSION" != "$REMOTE_VERSION" ] || [ "$BUILD" != "$REMOTE_BUILD" ]; then
+    echo "❌ 对不上。这个目录多半不是 Xcode 打开的那个 ——"
+    echo "   去 Xcode 里右键项目图标 → Show in Finder，看看是不是这里：$ROOT"
     exit 1
 fi
-echo "✅ 版本号对上了"
+echo "✅ 版本号和远端一致"
 echo
 
 cat <<'NOTE'
