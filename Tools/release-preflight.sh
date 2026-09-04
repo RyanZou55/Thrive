@@ -31,7 +31,8 @@ fi
 echo "→ 拉取 main"
 git fetch origin main || { echo "❌ fetch 失败，检查网络"; exit 1; }
 git checkout main || exit 1
-git pull --ff-only origin main || {
+# 用 FETCH_HEAD 而不是再 pull 一次，省掉重复的 fetch 输出。
+git merge --ff-only FETCH_HEAD || {
     echo "❌ 不能快进合并 —— 本地 main 有远端没有的提交。把它们推上去或另开分支。"
     exit 1
 }
@@ -67,10 +68,11 @@ cat <<'NOTE'
 打包之前，这一步别跳过：
 
   手机连上 → Xcode 设备选你的 iPhone → ⌘R 覆盖装（别删旧版）
-  → 打开一条 1.2 或 1.3 拍的转盘记录详情页
+  → ① 能正常启动  ② 打开一条 1.2 或 1.3 拍的转盘记录详情页
 
-这版新增了 GrowthEntry.spinPhotoIndex，是转盘上线以来第一次
-SwiftData 迁移。全新安装 100% 测不出问题，崩就崩在这个页面。
+这版新增了 GrowthEntry.spinPhotoIndex，是转盘上线以来第一次 SwiftData 迁移。
+迁移在建 ModelContainer 那一刻做，失败会走 fatalError —— 所以先看能不能启动，
+再看能不能读老记录。全新安装 100% 测不出这类问题。
 ────────────────────────────────────────────────────────
 NOTE
 
