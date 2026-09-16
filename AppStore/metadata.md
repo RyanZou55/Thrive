@@ -199,7 +199,27 @@ Info.plist 里已经写好 `ITSAppUsesNonExemptEncryption = false`，
 发更新时 ASC 会要求填「此版本的新功能 / What's New in This Version」，中英各一份。
 每发一版在这里往上叠一段，最新的放最前面。
 
-### 1.3.2
+### 1.4
+
+简体中文：
+
+```
+过去的浇水记录现在能改了：删掉记错的那条，补一张当时忘了拍的照片，或者把时间挪到真正浇水的那天。
+时间改了，首页「X 天前浇水」会跟着算对。
+植物的名字、封面、简介、入手日期也都能改了 —— 详情页右上角点「编辑」。
+写备注时点一下空白处，键盘就收起来。
+```
+
+English：
+
+```
+Past watering entries are now editable: delete one you logged by mistake, add the photo you forgot to take, or move it to the day you actually watered.
+Change the time and the "watered X days ago" count on the home screen follows.
+A plant's name, cover photo, description and date acquired are editable too — tap Edit on its page.
+Tap any blank spot while writing a note to dismiss the keyboard.
+```
+
+### 1.3.2（已上架，build 7）
 
 简体中文：
 
