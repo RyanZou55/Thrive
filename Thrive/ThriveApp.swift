@@ -9,6 +9,7 @@ struct ThriveApp: App {
     var body: some Scene {
         WindowGroup {
             PlantGridView()
+                .dismissesKeyboardOnTap()
         }
         .modelContainer(modelContainer)
     }

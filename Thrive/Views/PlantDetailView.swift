@@ -4,7 +4,7 @@ import SwiftUI
 /// 植物详情：封面 · 浇水按钮 · 时间轴。
 struct PlantDetailView: View {
     @Environment(\.modelContext) private var modelContext
-    @Bindable var plant: Plant
+    let plant: Plant
 
     /// 非 nil 就是正在拍照，值决定这张最后存成生长照还是浇水记录。
     @State private var capturePurpose: CapturePurpose?
@@ -14,8 +14,7 @@ struct PlantDetailView: View {
 
     // 浇水时可以顺手拍一张
     @State private var isChoosingWaterPhoto = false
-    // 入手日期是误触就没了的东西，删之前问一句
-    @State private var isConfirmingDateRemoval = false
+    @State private var isEditing = false
 
     var body: some View {
         ScrollView {
@@ -28,6 +27,14 @@ struct PlantDetailView: View {
         }
         .navigationTitle(plant.name)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button("编辑") { isEditing = true }
+            }
+        }
+        .sheet(isPresented: $isEditing) {
+            EditPlantView(plant: plant)
+        }
         .fullScreenCover(item: $capturePurpose) { purpose in
             CaptureView(plant: plant, purpose: purpose)
         }
@@ -35,7 +42,7 @@ struct PlantDetailView: View {
             GrowthEntryDetailView(entry: entry, plant: plant)
         }
         .sheet(item: $selectedCareRecord) { record in
-            CareRecordDetailView(record: record)
+            CareRecordDetailView(record: record, plant: plant)
         }
         .fullScreenCover(item: $viewedPhoto) { photo in
             PhotoViewerView(filename: photo.filename)
@@ -44,10 +51,6 @@ struct PlantDetailView: View {
             Button("拍照") { capturePurpose = .watering }
             Button("只记录，不拍照") { saveWatering() }
             Button("取消", role: .cancel) {}
-        }
-        .onDisappear {
-            // 入手日期和封面显示方式是直接写进模型的，关掉时落一次盘。
-            try? modelContext.save()
         }
     }
 
@@ -59,86 +62,27 @@ struct PlantDetailView: View {
     }
 
     private var header: some View {
-        VStack(spacing: 8) {
+        VStack(alignment: .leading, spacing: 10) {
             coverPhoto
 
-            VStack(alignment: .leading, spacing: 6) {
-                if let about = plant.notes, !about.isEmpty {
-                    Text(about)
-                        .font(.subheadline)
-                }
-                acquiredDateRow
+            if let about = plant.notes, !about.isEmpty {
+                Text(about)
+                    .font(.subheadline)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-    }
-
-    /// 入手日期事后也能改。没记过就先给个补记的入口。
-    private var acquiredDateRow: some View {
-        HStack(spacing: 6) {
-            if plant.acquiredDate == nil {
-                Button("记录入手日期") {
-                    // 补记时别默认今天 —— 已经养了半年的植株填今天，
-                    // 时间轴上的「第 N 天」会全部消失。用最早那张生长照当起点，
-                    // 和 dayLabel 算天数时的回退链保持一致。
-                    plant.acquiredDate = plant.sortedGrowthEntries.last?.capturedAt ?? plant.createdAt
-                    plant.touch()
+            if let acquiredDate = plant.acquiredDate {
+                HStack(spacing: 5) {
+                    Image(systemName: "calendar")
+                    Text("入手于")
+                    Text(acquiredDate.formatted(date: .long, time: .omitted))
                 }
-            } else {
-                Text("入手于")
-                    .foregroundStyle(.secondary)
-                DatePicker(
-                    "入手日期",
-                    selection: acquiredDate,
-                    in: ...Date(),
-                    displayedComponents: .date
-                )
-                .labelsHidden()
-
-                Button {
-                    isConfirmingDateRemoval = true
-                } label: {
-                    // 图标跟着 .caption 只有十来点，点不中。撑开一块 44×34 的
-                    // 命中区：宽度按 HIG 给够，高度跟 DatePicker 齐平，这行不会变高。
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.body)
-                        .foregroundStyle(.tertiary)
-                        .frame(width: 44, height: 34)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(Text("不记录入手日期"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
             }
         }
-        .font(.caption)
-        .confirmationDialog(
-            "删掉入手日期？",
-            isPresented: $isConfirmingDateRemoval,
-            titleVisibility: .visible
-        ) {
-            Button("删除", role: .destructive) {
-                plant.acquiredDate = nil
-                plant.touch()
-            }
-            Button("取消", role: .cancel) {}
-        } message: {
-            Text("时间轴上的「第 N 天」会改从第一张照片算起。")
-        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    /// acquiredDate 是可选的，DatePicker 要非可选，这里桥一下。
-    /// 只在 plant.acquiredDate != nil 时使用。
-    private var acquiredDate: Binding<Date> {
-        Binding(
-            get: { plant.acquiredDate ?? Date() },
-            set: { newValue in
-                plant.acquiredDate = newValue
-                plant.touch()
-            }
-        )
-    }
-
-    /// 点开看大图；右下角那个小按钮换显示方式。
+    /// 点开看大图。显示方式在编辑页里改。
     private var coverPhoto: some View {
         Button {
             if let headerPhotoFilename {
@@ -154,30 +98,6 @@ struct PlantDetailView: View {
         .disabled(headerPhotoFilename == nil)
         .background(.background.secondary)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay(alignment: .bottomTrailing) {
-            displayModeMenu
-                .padding(10)
-        }
-    }
-
-    private var displayModeMenu: some View {
-        Menu {
-            Picker(selection: $plant.coverDisplayMode) {
-                ForEach(CoverDisplayMode.allCases) { mode in
-                    Label { Text(mode.title) } icon: { Image(systemName: mode.symbolName) }
-                        .tag(mode)
-                }
-            } label: {
-                Text("显示方式")
-            }
-        } label: {
-            Image(systemName: "aspectratio")
-                .font(.footnote.weight(.semibold))
-                .foregroundStyle(.white)
-                .frame(width: 32, height: 32)
-                .background(.black.opacity(0.4), in: Circle())
-        }
-        .accessibilityLabel(Text("显示方式"))
     }
 
     // MARK: - 两个写入口

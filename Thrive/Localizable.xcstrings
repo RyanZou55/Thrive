@@ -212,6 +212,17 @@
         }
       }
     },
+    "删掉这张照片？" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove this photo?"
+          }
+        }
+      }
+    },
     "删除" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -223,6 +234,17 @@
         }
       }
     },
+    "删除照片" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove photo"
+          }
+        }
+      }
+    },
     "删除这条记录？" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -230,16 +252,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Delete this entry?"
-          }
-        }
-      }
-    },
-    "删掉入手日期？" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete the date acquired?"
           }
         }
       }
@@ -650,12 +662,13 @@
         }
       }
     },
-    "时间轴上的「第 N 天」会改从第一张照片算起。" : {
+    "时间轴上的「第 N 天」从这天算起。" : {
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Day counts on the timeline will start from the first photo instead."
+            "value" : "The “Day N” badges on the timeline count from this date."
           }
         }
       }
@@ -678,6 +691,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Display"
+          }
+        }
+      }
+    },
+    "更换照片" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replace photo"
           }
         }
       }
@@ -768,6 +792,17 @@
         }
       }
     },
+    "添加照片" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add photo"
+          }
+        }
+      }
+    },
     "照片也会一并删除，无法恢复。" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -833,6 +868,17 @@
         }
       }
     },
+    "编辑" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit"
+          }
+        }
+      }
+    },
     "角度对上了，按快门" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -855,13 +901,13 @@
         }
       }
     },
-    "记录入手日期" : {
+    "记录时间" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Record date acquired"
+            "value" : "Logged at"
           }
         }
       }
@@ -971,6 +1017,17 @@
         }
       }
     },
+    "还没记。选一个日期就记下来，不记就从第一张照片算起。" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not recorded. Pick a date to record it; otherwise the count starts from the first photo."
+          }
+        }
+      }
+    },
     "这些数据会一直保留，将来做「自动对齐」时可以回溯使用。" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1031,6 +1088,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Keep this one?"
+          }
+        }
+      }
+    },
+    "这条记录本身会留着，只是不再带照片。" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The record itself stays — it just won't have a photo."
           }
         }
       }
