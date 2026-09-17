@@ -21,6 +21,19 @@ struct GrowthEntryDetailView: View {
         )
     }
 
+    /// 拍摄时间事后能改 —— 补记、或者从相册选进来的老照片时间不对。
+    /// 时间轴和「第 N 天」都按它排，改完立刻跟着动。
+    private var capturedAt: Binding<Date> {
+        Binding(
+            get: { entry.capturedAt },
+            set: { newValue in
+                entry.capturedAt = newValue
+                entry.touch()
+                plant.touch()
+            }
+        )
+    }
+
     @State private var isConfirmingDelete = false
     @State private var viewedPhoto: ViewedPhoto?
     /// 转盘停在第几帧。打开时对到主照片那一帧，和列表里看到的缩略图同一个角度。
@@ -53,6 +66,8 @@ struct GrowthEntryDetailView: View {
                     }
 
                     coverButton
+
+                    dateRow
 
                     NoteEditor(text: noteText, placeholder: "这次有什么变化？（可选）")
 
@@ -117,6 +132,23 @@ struct GrowthEntryDetailView: View {
         }
         .buttonStyle(.bordered)
         .disabled(isCover)
+    }
+
+    /// 往前不设限 —— 补录早先拍的那张是常事；
+    /// 往后卡在今天 —— 记一张还没拍的照片没有意义。
+    private var dateRow: some View {
+        HStack {
+            Text("拍摄时间")
+                .font(.subheadline.weight(.medium))
+            Spacer()
+            DatePicker(
+                "拍摄时间",
+                selection: capturedAt,
+                in: ...Date(),
+                displayedComponents: [.date, .hourAndMinute]
+            )
+            .labelsHidden()
+        }
     }
 
     private var metadata: some View {

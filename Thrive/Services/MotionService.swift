@@ -233,6 +233,11 @@ final class MotionService: ObservableObject {
     }
 
     func stop() {
+        #if targetEnvironment(simulator)
+        // 模拟器走的是假姿态定时器，下面那个条件恒为 false，指望不上它来收尾。
+        simulatedTimer?.invalidate()
+        simulatedTimer = nil
+        #endif
         guard manager.isDeviceMotionActive else { return }
         manager.stopDeviceMotionUpdates()
     }

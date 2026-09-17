@@ -20,6 +20,15 @@ struct AddPlantView: View {
     @State private var pickerItem: PhotosPickerItem?
     @State private var coverImage: UIImage?
     @State private var isSaving = false
+    @State private var isConfirmingCancel = false
+
+    /// 填过东西没。取消掉的是这些，得先问一句。
+    private var hasInput: Bool {
+        coverImage != nil
+            || !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            || !about.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            || hasAcquiredDate
+    }
 
     private var canSave: Bool {
         !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -74,12 +83,22 @@ struct AddPlantView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("取消") { dismiss() }
+                    Button("取消") {
+                        if hasInput {
+                            isConfirmingCancel = true
+                        } else {
+                            dismiss()
+                        }
+                    }
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("保存") { save() }
                         .disabled(!canSave)
                 }
+            }
+            .confirmationDialog("放弃这株？", isPresented: $isConfirmingCancel, titleVisibility: .visible) {
+                Button("放弃", role: .destructive) { dismiss() }
+                Button("继续填写", role: .cancel) {}
             }
             .confirmationDialog("封面照片", isPresented: $isChoosingCoverSource, titleVisibility: .visible) {
                 if CameraPicker.isAvailable {

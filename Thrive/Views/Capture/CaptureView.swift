@@ -50,6 +50,9 @@ struct CaptureView: View {
     /// 转盘没成，但这一趟至少留了张单照 —— 在确认页说明一句为什么没有转盘。
     @State private var spinFallbackNote: String?
     @State private var note = ""
+    /// 确认页「重拍」的二次确认。转盘那一组是绕着走了二十秒换来的，
+    /// 丢掉就得重走一遍。
+    @State private var isConfirmingDiscard = false
     @State private var pickerItem: PhotosPickerItem?
     @State private var wasAligned = false
 
@@ -57,13 +60,19 @@ struct CaptureView: View {
     /// 现场 new 一个再 impact，第一次往往会被延迟或直接丢掉。
     private let alignmentHaptics = UIImpactFeedbackGenerator(style: .medium)
 
-    /// 用来做叠影和角度对比的那张 —— 就是最近一张生长记录。
-    private var referenceEntry: GrowthEntry? {
-        plant.latestGrowthEntry
-    }
+    /// 叠影用的那张 —— 最近拍的一张，浇水随手拍的也算。
+    ///
+    /// 姿态参考单独取（referencePose），不跟着叠影走：只有生长照存了姿态，
+    /// 合成一个的话，最近一张恰好是浇水照时，姿态对齐会整个失效。
+    ///
+    /// 两个都在进页面时算一次：alignment 跟着 30Hz 的姿态刷新重算，
+    /// 每次都去合并排序整条时间轴，记录一多就在取景时白烧电。
+    /// 一次拍摄会话里不会有新记录进来，算一次就够。
+    @State private var reference: PhotoReference?
+    @State private var referencePose: DevicePose?
 
     private var alignment: PoseAlignment {
-        PoseAlignment.evaluate(current: motion.currentPose, reference: referenceEntry?.pose)
+        PoseAlignment.evaluate(current: motion.currentPose, reference: referencePose)
     }
 
     /// 模拟器上 AVCapture 找不到相机，取景框出不来，叠影 / 网格 / 姿态条也就一次都渲染不到。
@@ -93,6 +102,8 @@ struct CaptureView: View {
             }
         }
         .task {
+            reference = plant.latestPhotoReference
+            referencePose = plant.latestGrowthEntry?.pose
             alignmentHaptics.prepare()
             await camera.start()
             motion.start()
@@ -137,7 +148,7 @@ struct CaptureView: View {
             }
         }
         .alert(
-            String(localized: "这组没存下来"),
+            String(localized: "没存下来"),
             isPresented: Binding(get: { spinWarning != nil }, set: { if !$0 { spinWarning = nil } })
         ) {
             Button("知道了", role: .cancel) { spinWarning = nil }
@@ -302,7 +313,7 @@ struct CaptureView: View {
             #endif
 
             if showsAlignmentAids {
-                GhostOverlay(filename: referenceEntry?.photoFilename, opacity: ghostOpacity)
+                GhostOverlay(filename: reference?.filename, opacity: ghostOpacity)
                     .ignoresSafeArea()
 
                 if showsGrid {
@@ -368,12 +379,12 @@ struct CaptureView: View {
 
     private var bottomControls: some View {
         VStack(spacing: 14) {
-            if motion.isAvailable && referenceEntry?.pose != nil {
+            if motion.isAvailable && referencePose != nil {
                 PoseIndicatorBar(alignment: alignment)
                     .padding(.horizontal, 16)
             }
 
-            if referenceEntry != nil {
+            if reference != nil {
                 HStack(spacing: 10) {
                     Image(systemName: "circle.lefthalf.filled")
                         .foregroundStyle(.white)
@@ -547,12 +558,10 @@ struct CaptureView: View {
                             .resizable()
                             .scaledToFit()
                             // 保留叠影，方便在保存前最后确认一次对得齐不齐。
-                            // 和取景里一样用 fill 裁切：老照片是拍下来没裁过的 4:3，
-                            // 用 fit 的话它会自己缩一圈留边，跟这张对不上。
                             .overlay {
-                                if let referenceEntry, ghostOpacity > 0 {
+                                if let reference, ghostOpacity > 0 {
                                     GhostOverlay(
-                                        filename: referenceEntry.photoFilename,
+                                        filename: reference.filename,
                                         opacity: ghostOpacity * 0.6
                                     )
                                 }
@@ -606,7 +615,7 @@ struct CaptureView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("重拍") { discard() }
+                    Button("重拍") { isConfirmingDiscard = true }
                         .disabled(isSaving)
                 }
                 ToolbarItem(placement: .confirmationAction) {
@@ -615,6 +624,16 @@ struct CaptureView: View {
                     }
                     .disabled(isSaving)
                 }
+            }
+            .confirmationDialog(
+                pendingSpin == nil ? String(localized: "重拍这张？") : String(localized: "重拍这一组？"),
+                isPresented: $isConfirmingDiscard,
+                titleVisibility: .visible
+            ) {
+                Button("重拍", role: .destructive) { discard() }
+                Button("取消", role: .cancel) {}
+            } message: {
+                Text("这次拍的和写好的备注都会丢掉，无法恢复。")
             }
         }
     }
@@ -671,10 +690,16 @@ struct CaptureView: View {
         defer { isSaving = false }
 
         let (photo, photoIndex) = await pickedPhoto(fallback: image)
+
+        // 存不下就把话说出来，否则点了「保存」页面原地不动，没人知道发生了什么。
+        // 也别在这之前删临时视频 —— 腾出空间再点一次，换主照片那条路还得用它。
+        guard let filename = PhotoStore.shared.save(photo) else {
+            spinWarning = String(localized: "照片没存下来，多半是存储空间不够了。腾点空间再试一次。")
+            return
+        }
+
         // 主照片定下来了，临时视频没别的用处了。
         camera.discardRecordedMovie()
-
-        guard let filename = PhotoStore.shared.save(photo) else { return }
 
         let trimmedNote = note.trimmingCharacters(in: .whitespacesAndNewlines)
         let savedNote = trimmedNote.isEmpty ? nil : trimmedNote
@@ -684,7 +709,7 @@ struct CaptureView: View {
             let entry = GrowthEntry(
                 photoFilename: filename,
                 note: savedNote,
-                refEntryID: referenceEntry?.id,
+                refEntryID: reference?.growthEntryID,
                 pose: poseAtCapture
             )
             entry.spinFilenames = pendingSpin?.spinFilenames

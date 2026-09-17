@@ -19,6 +19,9 @@ struct CareRecordDetailView: View {
     @State private var isShowingCamera = false
     @State private var isPickingFromLibrary = false
     @State private var pickerItem: PhotosPickerItem?
+    /// 刚选好、还没落盘的那张。有旧照片时先停在这儿等确认 ——
+    /// 换上去的同时旧照片就从磁盘删了，换错了找不回来。
+    @State private var pendingPhoto: UIImage?
 
     private var photoFilename: String? {
         guard let filename = record.photoFilename, !filename.isEmpty else { return nil }
@@ -101,7 +104,7 @@ struct CareRecordDetailView: View {
             .fullScreenCover(isPresented: $isShowingCamera) {
                 CameraPicker { image in
                     isShowingCamera = false
-                    if let image { replacePhoto(with: image) }
+                    if let image { stage(image) }
                 }
                 .ignoresSafeArea()
             }
@@ -123,6 +126,22 @@ struct CareRecordDetailView: View {
                 }
                 Button("从相册选择") { isPickingFromLibrary = true }
                 Button("取消", role: .cancel) {}
+            }
+            .confirmationDialog(
+                "换掉这张照片？",
+                isPresented: Binding(
+                    get: { pendingPhoto != nil },
+                    set: { if !$0 { pendingPhoto = nil } }
+                ),
+                titleVisibility: .visible
+            ) {
+                Button("更换", role: .destructive) {
+                    if let pendingPhoto { replacePhoto(with: pendingPhoto) }
+                    pendingPhoto = nil
+                }
+                Button("取消", role: .cancel) { pendingPhoto = nil }
+            } message: {
+                Text("原来那张会被删除，无法恢复。")
             }
             .confirmationDialog(
                 "删掉这张照片？",
@@ -182,9 +201,19 @@ struct CareRecordDetailView: View {
               let data = try? await item.loadTransferable(type: Data.self),
               let image = UIImage(data: data)
         else { return }
-        replacePhoto(with: image)
+        stage(image)
         // 同一张图再选一次也要能触发 onChange。
         pickerItem = nil
+    }
+
+    /// 本来没照片就直接存 —— 加一张不会毁掉什么，不用问。
+    /// 有旧照片才走确认。
+    private func stage(_ image: UIImage) {
+        if photoFilename == nil {
+            replacePhoto(with: image)
+        } else {
+            pendingPhoto = image
+        }
     }
 
     /// 新的存进去了才删旧的 —— 存失败时至少原来那张还在。

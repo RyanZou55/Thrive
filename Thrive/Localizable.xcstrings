@@ -1145,16 +1145,6 @@
         }
       }
     },
-    "这组没存下来" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This set wasn't saved"
-          }
-        }
-      }
-    },
     "选择一张照片" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1173,6 +1163,204 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Retake"
+          }
+        }
+      }
+    },
+    "拍摄时间" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date taken"
+          }
+        }
+      }
+    },
+    "删除「%@」？" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete “%@”?"
+          }
+        }
+      }
+    },
+    "所有生长照、转盘和浇水记录都会一起删除，无法恢复。" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every growth photo, spin and watering entry goes with it. This can't be undone."
+          }
+        }
+      }
+    },
+    "重拍这张？" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retake this photo?"
+          }
+        }
+      }
+    },
+    "重拍这一组？" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retake this spin?"
+          }
+        }
+      }
+    },
+    "这次拍的和写好的备注都会丢掉，无法恢复。" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What you just shot and the note you wrote will be lost. This can't be undone."
+          }
+        }
+      }
+    },
+    "换掉这张照片？" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replace this photo?"
+          }
+        }
+      }
+    },
+    "原来那张会被删除，无法恢复。" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The old one will be deleted. This can't be undone."
+          }
+        }
+      }
+    },
+    "更换" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replace"
+          }
+        }
+      }
+    },
+    "换掉原来的封面？" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replace the current cover?"
+          }
+        }
+      }
+    },
+    "原来那张封面会被删除，无法恢复。" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The old cover will be deleted. This can't be undone."
+          }
+        }
+      }
+    },
+    "放弃这些修改？" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Discard these changes?"
+          }
+        }
+      }
+    },
+    "放弃" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Discard"
+          }
+        }
+      }
+    },
+    "继续编辑" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep editing"
+          }
+        }
+      }
+    },
+    "放弃这株？" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Discard this plant?"
+          }
+        }
+      }
+    },
+    "继续填写" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep filling it in"
+          }
+        }
+      }
+    },
+    "照片没存下来，多半是存储空间不够了。腾点空间再试一次。" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The photo couldn't be saved — you're most likely out of storage. Free some up and try again."
+          }
+        }
+      }
+    },
+    "没存下来" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not saved"
           }
         }
       }

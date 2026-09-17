@@ -24,6 +24,8 @@ struct EditPlantView: View {
     @State private var isShowingCamera = false
     @State private var isPickingFromLibrary = false
     @State private var pickerItem: PhotosPickerItem?
+    @State private var isConfirmingCoverReplacement = false
+    @State private var isConfirmingCancel = false
 
     init(plant: Plant) {
         self.plant = plant
@@ -42,6 +44,23 @@ struct EditPlantView: View {
 
     private var canSave: Bool {
         !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    /// 保存会不会顺手删掉旧封面 —— 换了新的、而旧那张又不属于任何一条生长记录时才会。
+    /// 属于某条记录的话 save() 本来就不会删它，那就没什么可确认的。
+    private var savingDeletesOldCover: Bool {
+        guard newCoverImage != nil, let previous = plant.coverPhotoFilename else { return false }
+        return !plant.sortedGrowthEntries.contains { $0.photoFilename == previous }
+    }
+
+    /// 有没有改动没存。取消掉的是这些东西，得先问一句。
+    private var hasUnsavedChanges: Bool {
+        newCoverImage != nil
+            || name != plant.name
+            || about != (plant.notes ?? "")
+            || displayMode != plant.coverDisplayMode
+            || hasAcquiredDate != (plant.acquiredDate != nil)
+            || (hasAcquiredDate && acquiredDate != plant.acquiredDate)
     }
 
     var body: some View {
@@ -88,12 +107,34 @@ struct EditPlantView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("取消") { dismiss() }
+                    Button("取消") {
+                        if hasUnsavedChanges {
+                            isConfirmingCancel = true
+                        } else {
+                            dismiss()
+                        }
+                    }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("保存") { save() }
-                        .disabled(!canSave)
+                    Button("保存") {
+                        if savingDeletesOldCover {
+                            isConfirmingCoverReplacement = true
+                        } else {
+                            save()
+                        }
+                    }
+                    .disabled(!canSave)
                 }
+            }
+            .confirmationDialog("换掉原来的封面？", isPresented: $isConfirmingCoverReplacement, titleVisibility: .visible) {
+                Button("保存", role: .destructive) { save() }
+                Button("取消", role: .cancel) {}
+            } message: {
+                Text("原来那张封面会被删除，无法恢复。")
+            }
+            .confirmationDialog("放弃这些修改？", isPresented: $isConfirmingCancel, titleVisibility: .visible) {
+                Button("放弃", role: .destructive) { dismiss() }
+                Button("继续编辑", role: .cancel) {}
             }
             .confirmationDialog("封面照片", isPresented: $isChoosingCoverSource, titleVisibility: .visible) {
                 if CameraPicker.isAvailable {

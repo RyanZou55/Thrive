@@ -8,6 +8,9 @@ struct PlantGridView: View {
     private var plants: [Plant]
 
     @State private var isAddingPlant = false
+    /// 待删除的那株。非 nil 就是确认框开着 —— 长按菜单离「浇水」只有一行，
+    /// 而这一下点下去整株连同所有照片都没了。
+    @State private var plantPendingDeletion: Plant?
 
     private let columns = [
         GridItem(.adaptive(minimum: 150, maximum: 240), spacing: 16)
@@ -35,6 +38,22 @@ struct PlantGridView: View {
             .sheet(isPresented: $isAddingPlant) {
                 AddPlantView()
             }
+            .confirmationDialog(
+                String(format: String(localized: "删除「%@」？"), plantPendingDeletion?.name ?? ""),
+                isPresented: Binding(
+                    get: { plantPendingDeletion != nil },
+                    set: { if !$0 { plantPendingDeletion = nil } }
+                ),
+                titleVisibility: .visible
+            ) {
+                Button("删除", role: .destructive) {
+                    if let plantPendingDeletion { delete(plantPendingDeletion) }
+                    plantPendingDeletion = nil
+                }
+                Button("取消", role: .cancel) { plantPendingDeletion = nil }
+            } message: {
+                Text("所有生长照、转盘和浇水记录都会一起删除，无法恢复。")
+            }
         }
     }
 
@@ -51,7 +70,7 @@ struct PlantGridView: View {
                             water(plant)
                         }
                         Button("删除", systemImage: "trash", role: .destructive) {
-                            delete(plant)
+                            plantPendingDeletion = plant
                         }
                     }
                 }

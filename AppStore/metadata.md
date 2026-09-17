@@ -199,7 +199,27 @@ Info.plist 里已经写好 `ITSAppUsesNonExemptEncryption = false`，
 发更新时 ASC 会要求填「此版本的新功能 / What's New in This Version」，中英各一份。
 每发一版在这里往上叠一段，最新的放最前面。
 
-### 1.4
+### 1.4.2
+
+简体中文：
+
+```
+生长照的拍摄时间现在能改了 —— 从相册补进来的老照片，把时间挪回真正拍的那天，时间轴和「第 N 天」都会跟着排对。
+浇水时随手拍的照片现在也算「上一张」：下次拍照的叠影会用它，不管上一张是怎么来的。
+叠影改成完整显示，不再裁掉两边 —— 以前从相册选的照片当叠影时，只看得见中间一块。
+删除植物、重拍、更换照片、放弃没保存的编辑，这些撤不回来的操作现在都会先问一句。
+```
+
+English：
+
+```
+The date on a growth photo is now editable — bring an old picture in from your library, move it back to the day you actually took it, and the timeline and "Day N" tags follow.
+A photo you snap while watering now counts as your last shot: the ghost overlay on your next capture uses it, wherever it came from.
+The ghost overlay shows the whole photo now instead of cropping the sides — pictures from your library used to show only the middle.
+Deleting a plant, retaking a shot, replacing a photo, walking away from unsaved edits — anything you can't undo asks first now.
+```
+
+### 1.4（已上架，build 8）
 
 简体中文：
 
