@@ -199,7 +199,21 @@ Info.plist 里已经写好 `ITSAppUsesNonExemptEncryption = false`，
 发更新时 ASC 会要求填「此版本的新功能 / What's New in This Version」，中英各一份。
 每发一版在这里往上叠一段，最新的放最前面。
 
-### 1.4.2
+### 1.4.3
+
+简体中文：
+
+```
+拍生长照时可以开闪光灯了 —— 取景页右上角那个闪电按钮，光线不够的时候点开。
+```
+
+English：
+
+```
+You can now turn on the flash when taking a growth photo — tap the bolt at the top of the capture screen when the light is low.
+```
+
+### 1.4.2（已上架，build 9）
 
 简体中文：
 
