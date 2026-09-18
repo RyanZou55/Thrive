@@ -17,6 +17,10 @@ final class CameraService: NSObject, ObservableObject {
 
     @Published private(set) var status: Status = .idle
     @Published private(set) var isCapturing = false
+    /// 闪光灯开关。只作用于单张拍照 —— 转盘是录像，闪光灯在那儿帮不上忙。
+    @Published var isFlashOn = false
+    /// 这台设备有没有闪光灯 —— 没有的话取景页不显示那个按钮。
+    @Published private(set) var isFlashAvailable = false
     /// 刚拍下来的照片，拍完由 CaptureView 取走。
     @Published var capturedImage: UIImage?
 
@@ -100,6 +104,7 @@ final class CameraService: NSObject, ObservableObject {
         }
 
         videoDevice = device
+        isFlashAvailable = device.hasFlash
 
         session.beginConfiguration()
         session.sessionPreset = .photo
@@ -237,7 +242,7 @@ final class CameraService: NSObject, ObservableObject {
         isCapturing = true
 
         let settings = AVCapturePhotoSettings()
-        settings.flashMode = .off
+        settings.flashMode = isFlashOn && photoOutput.supportedFlashModes.contains(.on) ? .on : .off
         applyPortraitRotation(to: photoOutput.connection(with: .video))
         photoOutput.capturePhoto(with: settings, delegate: self)
     }

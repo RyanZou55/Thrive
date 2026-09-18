@@ -353,6 +353,19 @@ struct CaptureView: View {
 
             Spacer()
 
+            // 转盘是录像，闪光灯对它没用，那个模式下就不出这个按钮。
+            if camera.isFlashAvailable && !isSpinMode {
+                Button {
+                    camera.isFlashOn.toggle()
+                } label: {
+                    Image(systemName: camera.isFlashOn ? "bolt.fill" : "bolt.slash.fill")
+                        .font(.title3)
+                        .foregroundStyle(camera.isFlashOn ? .yellow : .white)
+                        .padding(10)
+                        .background(.black.opacity(0.35), in: Circle())
+                }
+            }
+
             Button {
                 showsGrid.toggle()
             } label: {
